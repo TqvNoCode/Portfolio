@@ -20,6 +20,8 @@ interface NowPlayingProps {
   onTogglePlay: () => void;
   onPrev: () => void;
   onNext: () => void;
+  onSeekBackward: () => void;
+  onSeekForward: () => void;
   onToggleShuffle: () => void;
   onToggleRepeat: () => void;
   onSeek: (seconds: number) => void;
@@ -38,6 +40,8 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
   onTogglePlay,
   onPrev,
   onNext,
+  onSeekBackward,
+  onSeekForward,
   onToggleShuffle,
   onToggleRepeat,
   onSeek,
@@ -63,9 +67,23 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
     ? 'RESTRICTED'
     : 'STANDBY';
 
+  const statusClass = isPlaying
+    ? styles.statusPlaying
+    : isBuffering
+    ? styles.statusBuffering
+    : isCued
+    ? styles.statusReady
+    : isPaused
+    ? styles.statusPaused
+    : isError
+    ? styles.statusError
+    : '';
+
+  const effectiveDuration = duration || selectedTrack?.durationSeconds || 0;
+
   return (
     <div className={styles.nowPlayingPanel}>
-      {/* Panel Header */}
+      {/* 1. Header with compact playback status badge */}
       <div className={styles.nowPlayingHeader}>
         <div className={styles.nowPlayingHeaderLeft}>
           <Disc size={15} className={`${styles.discIcon} ${isPlaying ? styles.spinDisc : ''}`} />
@@ -73,21 +91,7 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
         </div>
 
         <div className={styles.nowPlayingHeaderRight}>
-          <span
-            className={`${styles.statusBadge} ${
-              isPlaying
-                ? styles.statusPlaying
-                : isBuffering
-                ? styles.statusBuffering
-                : isCued
-                ? styles.statusReady
-                : isPaused
-                ? styles.statusPaused
-                : isError
-                ? styles.statusError
-                : ''
-            }`}
-          >
+          <span className={`${styles.statusBadge} ${statusClass}`}>
             {isPlaying && <span className={styles.pulsingDot} />}
             {isBuffering && <span className={styles.bufferingDot} />}
             <span>{statusLabel}</span>
@@ -95,38 +99,52 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
         </div>
       </div>
 
-      {/* Visible YouTube Player (strictly compliant with YouTube Developer Policy) */}
+      {/* 2. Visible YouTube Video Player (Compliant with YouTube Developer Policy) */}
       <YouTubePlayer containerId={containerId} isReady={isReady} />
 
-      {/* Track Metadata Section */}
-      <div className={styles.nowPlayingInfo}>
-        <div className={styles.titleChannelBlock}>
-          <h4 className={styles.nowPlayingTitle} title={selectedTrack?.title || 'No Track Selected'}>
-            {selectedTrack ? selectedTrack.title : 'Select a track to start listening'}
-          </h4>
-          <div className={styles.channelRow}>
-            <span className={styles.nowPlayingChannel}>
-              {selectedTrack?.channelTitle || 'TQV Curated Audio Focus'}
-            </span>
-            <span className={styles.sourceTag}>
-              <Radio size={11} aria-hidden="true" />
-              <span>YouTube Music</span>
-            </span>
-          </div>
+      {/* 3 & 4. Track Title & Creator Attribution Block */}
+      <div className={styles.trackMetaBlock}>
+        <h4 className={styles.nowPlayingTitle} title={selectedTrack?.title || 'No Track Selected'}>
+          {selectedTrack ? selectedTrack.title : 'Select a track to start listening'}
+        </h4>
+        <div className={styles.channelRow}>
+          <span className={styles.nowPlayingChannel}>
+            {selectedTrack?.channelTitle || 'TQV Curated Audio Focus'}
+          </span>
+          <span className={styles.sourceTag}>
+            <Radio size={11} aria-hidden="true" />
+            <span>YouTube Music</span>
+          </span>
         </div>
-
-        {/* Dynamic Animated Waveform */}
-        <WaveformVisualizer playbackState={playbackState} />
       </div>
 
-      {/* Playback Scrubber & Time */}
-      <PlaybackProgress
-        currentTime={currentTime}
-        duration={duration || selectedTrack?.durationSeconds || 0}
-        onSeek={onSeek}
-      />
+      {/* 5. Playback Waveform (Dedicated Full-Width Row) */}
+      <div className={styles.waveformSection}>
+        <div className={styles.waveformHeader}>
+          <span className={styles.waveformLabel}>TRACK WAVEFORM</span>
+          <span className={styles.waveformModeHint}>
+            {isPlaying ? 'ACTIVE AUDIO STREAM' : isPaused ? 'PAUSED' : isBuffering ? 'BUFFERING...' : 'STANDBY'}
+          </span>
+        </div>
+        <WaveformVisualizer
+          videoId={selectedTrack?.videoId}
+          playbackState={playbackState}
+          currentTime={currentTime}
+          duration={effectiveDuration}
+          onSeek={onSeek}
+        />
+      </div>
 
-      {/* External Audio Controls */}
+      {/* 6. Playback Scrubber & Time Labels */}
+      <div className={styles.progressSection}>
+        <PlaybackProgress
+          currentTime={currentTime}
+          duration={effectiveDuration}
+          onSeek={onSeek}
+        />
+      </div>
+
+      {/* 7. External Audio Controls Hierarchy */}
       <div className={styles.controlsSection}>
         <PlaybackControls
           playbackState={playbackState}
@@ -135,13 +153,16 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
           onTogglePlay={onTogglePlay}
           onPrev={onPrev}
           onNext={onNext}
+          onSeekBackward={onSeekBackward}
+          onSeekForward={onSeekForward}
           onToggleShuffle={onToggleShuffle}
           onToggleRepeat={onToggleRepeat}
           hasTrack={Boolean(selectedTrack)}
+          duration={effectiveDuration}
         />
       </div>
 
-      {/* Panel Footer */}
+      {/* 8. Panel Footer Attribution & External Link */}
       <div className={styles.nowPlayingFooter}>
         <span className={styles.complianceNote}>
           Embedded via YouTube IFrame API &bull; Privacy-Enhanced Mode

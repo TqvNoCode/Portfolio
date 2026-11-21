@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ExternalLink, Radio } from 'lucide-react';
 import { LISTENING_ROOM_CONFIG } from '../../data/listeningRoom';
 import { usePlaylist } from './usePlaylist';
@@ -71,6 +71,40 @@ export const ListeningRoom: React.FC = () => {
     player.setLoop(nextRepeat === 'all');
   }, [playlist, player]);
 
+  // Scoped accessibility keyboard shortcuts (Space, ArrowLeft, ArrowRight)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Do not intercept if user is typing in an input, textarea, or content-editable field
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (
+        activeEl &&
+        (activeEl.tagName === 'INPUT' ||
+          activeEl.tagName === 'TEXTAREA' ||
+          activeEl.isContentEditable)
+      ) {
+        return;
+      }
+
+      // Check if focus is within listening room or section is visible
+      const section = document.getElementById('listening-room');
+      if (!section) return;
+
+      if (e.code === 'Space' && activeEl?.tagName !== 'BUTTON') {
+        e.preventDefault();
+        player.togglePlay();
+      } else if (e.code === 'ArrowLeft' && activeEl?.getAttribute('type') !== 'range') {
+        e.preventDefault();
+        player.seekBackward(5);
+      } else if (e.code === 'ArrowRight' && activeEl?.getAttribute('type') !== 'range') {
+        e.preventDefault();
+        player.seekForward(5);
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [player]);
+
   return (
     <section
       id="listening-room"
@@ -136,6 +170,8 @@ export const ListeningRoom: React.FC = () => {
             onTogglePlay={player.togglePlay}
             onPrev={handlePrev}
             onNext={handleNext}
+            onSeekBackward={player.seekBackward}
+            onSeekForward={player.seekForward}
             onToggleShuffle={handleToggleShuffle}
             onToggleRepeat={handleToggleRepeat}
             onSeek={player.seekTo}

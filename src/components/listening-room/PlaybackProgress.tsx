@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { formatDuration } from '../../data/listeningRoom';
 import styles from './ListeningRoom.module.css';
 
@@ -13,40 +13,87 @@ export const PlaybackProgress: React.FC<PlaybackProgressProps> = ({
   duration,
   onSeek,
 }) => {
-  const [isScrubbing, setIsScrubbing] = useState(false);
-  const [scrubValue, setScrubValue] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [draftValue, setDraftValue] = useState(0);
+  const draftRef = useRef(draftValue);
+  draftRef.current = draftValue;
 
+  // Keep scrub value synced with player currentTime when user is NOT actively dragging
   useEffect(() => {
-    if (!isScrubbing) {
-      setScrubValue(currentTime);
+    if (!isDragging) {
+      setDraftValue(currentTime);
     }
-  }, [currentTime, isScrubbing]);
+  }, [currentTime, isDragging]);
 
-  const progressPercent = duration > 0 ? Math.min(100, Math.max(0, (scrubValue / duration) * 100)) : 0;
+  // Global pointer up handler while dragging outside the range input boundary
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleGlobalPointerUp = () => {
+      setIsDragging(false);
+      onSeek(draftRef.current);
+    };
+
+    window.addEventListener('pointerup', handleGlobalPointerUp);
+    window.addEventListener('pointercancel', handleGlobalPointerUp);
+
+    return () => {
+      window.removeEventListener('pointerup', handleGlobalPointerUp);
+      window.removeEventListener('pointercancel', handleGlobalPointerUp);
+    };
+  }, [isDragging, onSeek]);
+
+  const activeValue = isDragging ? draftValue : currentTime;
+  const progressPercent =
+    duration > 0 ? Math.min(100, Math.max(0, (activeValue / duration) * 100)) : 0;
+
+  const handlePointerDown = () => {
+    setIsDragging(true);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setScrubValue(parseFloat(e.target.value));
+    const val = parseFloat(e.target.value);
+    setDraftValue(val);
   };
 
-  const handleMouseDown = () => {
-    setIsScrubbing(true);
+  const handlePointerUp = (e: React.PointerEvent<HTMLInputElement>) => {
+    setIsDragging(false);
+    const val = parseFloat((e.target as HTMLInputElement).value);
+    onSeek(val);
   };
 
-  const handleMouseUp = (e: React.MouseEvent<HTMLInputElement>) => {
-    setIsScrubbing(false);
-    onSeek(parseFloat((e.target as HTMLInputElement).value));
-  };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!duration || duration <= 0) return;
 
-  const handleTouchEnd = (e: React.TouchEvent<HTMLInputElement>) => {
-    setIsScrubbing(false);
-    onSeek(parseFloat((e.target as HTMLInputElement).value));
+    let targetTime: number | null = null;
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      targetTime = Math.max(0, activeValue - 5);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      targetTime = Math.min(duration, activeValue + 5);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      targetTime = 0;
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      targetTime = duration;
+    }
+
+    if (targetTime !== null) {
+      setDraftValue(targetTime);
+      onSeek(targetTime);
+    }
   };
 
   return (
     <div className={styles.progressContainer}>
-      <span className={styles.timeLabel}>{formatDuration(scrubValue)}</span>
+      <span className={styles.timeLabel} aria-hidden="true">
+        {formatDuration(activeValue)}
+      </span>
 
       <div className={styles.sliderWrapper}>
+        <div className={styles.sliderTrackBg} aria-hidden="true" />
         <div
           className={styles.sliderFill}
           style={{ width: `${progressPercent}%` }}
@@ -55,24 +102,26 @@ export const PlaybackProgress: React.FC<PlaybackProgressProps> = ({
         <input
           type="range"
           min={0}
-          max={duration || 100}
+          max={duration > 0 ? duration : 100}
           step={0.5}
-          value={scrubValue}
+          value={activeValue}
           onChange={handleChange}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onTouchEnd={handleTouchEnd}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onKeyDown={handleKeyDown}
           className={styles.rangeInput}
           aria-label="Seek track position"
           aria-valuemin={0}
-          aria-valuemax={duration || 100}
-          aria-valuenow={scrubValue}
-          aria-valuetext={`${formatDuration(scrubValue)} of ${formatDuration(duration)}`}
+          aria-valuemax={Math.round(duration || 100)}
+          aria-valuenow={Math.round(activeValue)}
+          aria-valuetext={`${formatDuration(activeValue)} of ${formatDuration(duration)}`}
           disabled={!duration || duration <= 0}
         />
       </div>
 
-      <span className={styles.timeLabel}>{formatDuration(duration)}</span>
+      <span className={styles.timeLabel} aria-hidden="true">
+        {formatDuration(duration)}
+      </span>
     </div>
   );
 };

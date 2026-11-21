@@ -1,5 +1,15 @@
 import React from 'react';
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Repeat1 } from 'lucide-react';
+import {
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Rewind,
+  FastForward,
+  Shuffle,
+  Repeat,
+  Repeat1,
+} from 'lucide-react';
 import type { PlaybackState, RepeatMode } from '../../types/listeningRoom';
 import styles from './ListeningRoom.module.css';
 
@@ -10,9 +20,12 @@ interface PlaybackControlsProps {
   onTogglePlay: () => void;
   onPrev: () => void;
   onNext: () => void;
+  onSeekBackward: () => void;
+  onSeekForward: () => void;
   onToggleShuffle: () => void;
   onToggleRepeat: () => void;
   hasTrack: boolean;
+  duration?: number;
 }
 
 export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
@@ -22,16 +35,20 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   onTogglePlay,
   onPrev,
   onNext,
+  onSeekBackward,
+  onSeekForward,
   onToggleShuffle,
   onToggleRepeat,
   hasTrack,
+  duration = 0,
 }) => {
   const isPlaying = playbackState === 'PLAYING';
   const isBuffering = playbackState === 'BUFFERING';
+  const canSeek = duration > 0;
 
   return (
     <div className={styles.controlsRow} role="toolbar" aria-label="Audio playback controls">
-      {/* Shuffle Button */}
+      {/* 1. Shuffle Button */}
       <button
         type="button"
         onClick={onToggleShuffle}
@@ -43,7 +60,20 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
         <Shuffle size={16} />
       </button>
 
-      {/* Previous Track Button */}
+      {/* 2. Rewind 10s Button */}
+      <button
+        type="button"
+        onClick={() => onSeekBackward()}
+        className={`${styles.iconButton} ${styles.seekBtn}`}
+        aria-label="Rewind 10 seconds"
+        disabled={!canSeek}
+        title="Rewind 10 seconds (-10s)"
+      >
+        <Rewind size={17} />
+        <span className={styles.seekBtnBadge}>-10s</span>
+      </button>
+
+      {/* 3. Previous Track Button */}
       <button
         type="button"
         onClick={onPrev}
@@ -52,10 +82,10 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
         disabled={!hasTrack}
         title="Previous track"
       >
-        <SkipBack size={18} />
+        <SkipBack size={19} />
       </button>
 
-      {/* Main Play / Pause Button */}
+      {/* 4. Main Play / Pause Button (Emphasized primary action) */}
       <button
         type="button"
         onClick={onTogglePlay}
@@ -65,14 +95,14 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
         title={isPlaying ? 'Pause' : 'Play'}
       >
         {isPlaying ? (
-          <Pause size={20} className={styles.playIcon} />
+          <Pause size={22} className={styles.playIcon} />
         ) : (
-          <Play size={20} className={`${styles.playIcon} ${styles.offsetPlay}`} />
+          <Play size={22} className={`${styles.playIcon} ${styles.offsetPlay}`} />
         )}
         {isBuffering && <span className={styles.bufferingSpinner} aria-hidden="true" />}
       </button>
 
-      {/* Next Track Button */}
+      {/* 5. Next Track Button */}
       <button
         type="button"
         onClick={onNext}
@@ -81,16 +111,30 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
         disabled={!hasTrack}
         title="Next track"
       >
-        <SkipForward size={18} />
+        <SkipForward size={19} />
       </button>
 
-      {/* Repeat Button */}
+      {/* 6. Forward 10s Button */}
+      <button
+        type="button"
+        onClick={() => onSeekForward()}
+        className={`${styles.iconButton} ${styles.seekBtn}`}
+        aria-label="Forward 10 seconds"
+        disabled={!canSeek}
+        title="Forward 10 seconds (+10s)"
+      >
+        <FastForward size={17} />
+        <span className={styles.seekBtnBadge}>+10s</span>
+      </button>
+
+      {/* 7. Repeat Button (Off -> All -> One -> Off) */}
       <button
         type="button"
         onClick={onToggleRepeat}
         className={`${styles.iconButton} ${repeat !== 'off' ? styles.activeOption : ''}`}
         aria-label={`Repeat mode: ${repeat}`}
-        title={`Repeat: ${repeat}`}
+        aria-pressed={repeat !== 'off'}
+        title={`Repeat: ${repeat === 'off' ? 'Off' : repeat === 'all' ? 'All' : 'One'}`}
       >
         {repeat === 'one' ? <Repeat1 size={16} /> : <Repeat size={16} />}
       </button>

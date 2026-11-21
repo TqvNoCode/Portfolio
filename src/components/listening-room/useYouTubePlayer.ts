@@ -383,12 +383,44 @@ export function useYouTubePlayer({
     }
   }, []);
 
-  const seekTo = useCallback((seconds: number) => {
+  const seekTo = useCallback((seconds: number, allowSeekAhead = true) => {
     if (playerRef.current && typeof playerRef.current.seekTo === 'function') {
-      playerRef.current.seekTo(seconds, true);
-      setCurrentTime(seconds);
+      try {
+        playerRef.current.seekTo(seconds, allowSeekAhead);
+        setCurrentTime(seconds);
+      } catch (e) {
+        console.error('Error in seekTo:', e);
+      }
     }
   }, []);
+
+  const seekBackward = useCallback((seconds: number | unknown = 10) => {
+    const sec = typeof seconds === 'number' && !isNaN(seconds) ? seconds : 10;
+    if (!playerRef.current) return;
+    try {
+      const ytTime = typeof playerRef.current.getCurrentTime === 'function' ? playerRef.current.getCurrentTime() : 0;
+      const baseTime = typeof ytTime === 'number' && ytTime > 0 ? ytTime : currentTime;
+      const target = Math.max(0, baseTime - sec);
+      seekTo(target, true);
+    } catch (e) {
+      console.error('Error in seekBackward:', e);
+    }
+  }, [currentTime, seekTo]);
+
+  const seekForward = useCallback((seconds: number | unknown = 10) => {
+    const sec = typeof seconds === 'number' && !isNaN(seconds) ? seconds : 10;
+    if (!playerRef.current) return;
+    try {
+      const ytTime = typeof playerRef.current.getCurrentTime === 'function' ? playerRef.current.getCurrentTime() : 0;
+      const baseTime = typeof ytTime === 'number' && ytTime > 0 ? ytTime : currentTime;
+      const totalDur = typeof playerRef.current.getDuration === 'function' ? playerRef.current.getDuration() : duration;
+      const maxLimit = totalDur > 0 ? totalDur : baseTime + sec;
+      const target = Math.min(maxLimit, baseTime + sec);
+      seekTo(target, true);
+    } catch (e) {
+      console.error('Error in seekForward:', e);
+    }
+  }, [currentTime, duration, seekTo]);
 
   const setShuffle = useCallback((shuffle: boolean) => {
     if (playerRef.current && typeof playerRef.current.setShuffle === 'function') {
@@ -450,6 +482,8 @@ export function useYouTubePlayer({
     nextVideo,
     previousVideo,
     seekTo,
+    seekBackward,
+    seekForward,
     setShuffle,
     setLoop,
     setError: setErrorState,
