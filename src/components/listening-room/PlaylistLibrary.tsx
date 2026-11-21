@@ -9,7 +9,6 @@ interface PlaylistLibraryProps {
   tracks: PlaylistTrack[];
   filteredTracks: PlaylistTrack[];
   totalResults: number;
-  playlistTitle: string;
   selectedTrack: PlaylistTrack | null;
   playbackState: PlaybackState;
   isLoading: boolean;
@@ -30,7 +29,6 @@ export const PlaylistLibrary: React.FC<PlaylistLibraryProps> = ({
   tracks,
   filteredTracks,
   totalResults,
-  playlistTitle,
   selectedTrack,
   playbackState,
   isLoading,
@@ -54,7 +52,7 @@ export const PlaylistLibrary: React.FC<PlaylistLibraryProps> = ({
       <div className={styles.libraryHeader}>
         <div className={styles.libraryTitleArea}>
           <div className={styles.titleWithBadge}>
-            <h3 className={styles.libraryTitle}>{playlistTitle}</h3>
+            <h3 className={styles.libraryTitle}>PLAYLIST LIBRARY</h3>
             <span className={styles.trackCountBadge}>
               {totalResults > 0 ? `${totalResults} Tracks` : `${tracks.length} Tracks`}
             </span>

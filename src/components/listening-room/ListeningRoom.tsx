@@ -96,7 +96,6 @@ export const ListeningRoom: React.FC = () => {
             tracks={playlist.tracks}
             filteredTracks={playlist.filteredTracks}
             totalResults={playlist.totalResults}
-            playlistTitle={playlist.playlistTitle}
             selectedTrack={playlist.selectedTrack}
             playbackState={player.playbackState}
             isLoading={playlist.isLoading}

@@ -70,7 +70,7 @@ docs/
 
 * **Configured Source**: `https://music.youtube.com/playlist?list=PLV8hEip3Kp-o&si=-JKQxyT7mPmNZQq1`
 * **Playlist ID**: `PLV8hEip3Kp-o`
-* **Playlist Title**: Retrieved dynamically via `playlists.list` (defaults to `"OLD BUT GOLD"`).
+* **Public Library Header**: Neutral label `PLAYLIST LIBRARY` (remote metadata preserved internally).
 * **Data Fields Extracted**:
   * `playlistItemId`: Unique playlist entry ID.
   * `videoId`: Clean YouTube video identifier.
