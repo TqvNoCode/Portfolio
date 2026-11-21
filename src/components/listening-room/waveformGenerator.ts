@@ -1,20 +1,21 @@
 /**
- * Deterministic Waveform Generator
- * Produces a stable, natural audio waveform silhouette for any given YouTube videoId.
+ * Deterministic Waveform Generator for Listening Room V4.1
+ * Produces a stable, unique, and natural audio equalizer profile for any YouTube videoId.
  *
- * Requirements:
- * - Pure and deterministic: same videoId always produces identical bar heights.
- * - Distinct shapes: different videoIds produce visually unique envelopes.
- * - Natural acoustic contour: tapered attack/decay envelope with harmonic peaks.
+ * Characteristics:
+ * - Deterministic: same videoId always yields identical base heights, durations, delays, and animation styles.
+ * - Varied: 4 distinct animation rhythms across 40 thin bars create an asynchronous, organic jumping visualizer.
+ * - Natural contour: audio envelope tapering at intro/outro with dynamic peaks and valleys.
  */
 
-export interface WaveformBarData {
-  baseHeight: number; // Percentage height (18% to 92%)
-  delay: string;      // CSS animation-delay (e.g., "0.24s")
-  duration: string;   // CSS animation-duration (e.g., "1.35s")
+export interface WaveformBarProfile {
+  baseHeight: number;  // Base height percentage (18% to 88%)
+  animVariant: number; // Animation variant (1 to 4)
+  duration: string;    // CSS animation duration (e.g., "0.85s")
+  delay: string;       // Staggered negative CSS animation delay (e.g., "-0.45s")
 }
 
-// 32-bit FNV-1a hash algorithm
+// 32-bit FNV-1a hash
 function hashString(str: string): number {
   let hash = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) {
@@ -24,7 +25,7 @@ function hashString(str: string): number {
   return hash >>> 0;
 }
 
-// Seeded pseudo-random number generator (Mulberry32)
+// Mulberry32 PRNG
 function mulberry32(seed: number) {
   return function () {
     let t = (seed += 0x6d2b79f5);
@@ -35,54 +36,61 @@ function mulberry32(seed: number) {
 }
 
 /**
- * Generates an array of deterministic waveform bar heights for a track.
+ * Generates an array of deterministic waveform bar configurations for a song.
  *
- * @param videoId - YouTube Video ID (used as seed)
- * @param barCount - Number of bars (default 42, matching the 35–45 bar requirement)
+ * @param videoId - YouTube Video ID (used as PRNG seed)
+ * @param barCount - Number of bars (default 40, in the 35–45 range)
  */
 export function generateTrackWaveform(
   videoId: string | null | undefined,
-  barCount: number = 42
-): WaveformBarData[] {
-  const seedString = videoId && videoId.trim().length > 0 ? videoId.trim() : 'tqv-cadence-stream';
+  barCount: number = 40
+): WaveformBarProfile[] {
+  const seedString = videoId && videoId.trim().length > 0 ? videoId.trim() : 'tqv-audio-lab';
   const seed = hashString(seedString);
   const prng = mulberry32(seed);
 
-  // Deterministic harmonic frequencies and phases
-  const freqPrimary = 1.4 + prng() * 2.2;
-  const freqSecondary = 3.6 + prng() * 3.8;
-  const phasePrimary = prng() * Math.PI * 2;
-  const phaseSecondary = prng() * Math.PI * 2;
+  // Deterministic harmonic frequencies for acoustic contour
+  const freq1 = 1.3 + prng() * 2.0;
+  const freq2 = 3.4 + prng() * 3.5;
+  const phase1 = prng() * Math.PI * 2;
+  const phase2 = prng() * Math.PI * 2;
 
-  const bars: WaveformBarData[] = [];
+  const bars: WaveformBarProfile[] = [];
 
   for (let i = 0; i < barCount; i++) {
-    const t = i / (barCount - 1); // Normalized position [0.0, 1.0]
+    const t = i / (barCount - 1); // [0.0, 1.0]
 
-    // Audio mastering envelope: smooth taper at intro and outro, full body in the middle
+    // Audio envelope: smooth taper at intro and outro with full body in the center
     const envelope = Math.sin(t * Math.PI);
-    const shapedEnvelope = Math.pow(Math.max(0, envelope), 0.42);
+    const shapedEnvelope = Math.pow(Math.max(0, envelope), 0.44);
 
-    // Harmonic wave blend
-    const wave1 = Math.sin(t * Math.PI * freqPrimary + phasePrimary);
-    const wave2 = Math.cos(t * Math.PI * freqSecondary + phaseSecondary);
-    const noise = (prng() - 0.5) * 0.35;
+    // Harmonic blend + pseudo-random transient spikes
+    const wave1 = Math.sin(t * Math.PI * freq1 + phase1);
+    const wave2 = Math.cos(t * Math.PI * freq2 + phase2);
+    const spike = (prng() - 0.5) * 0.4;
 
-    // Combined energy profile
-    const rawEnergy = 0.5 + 0.3 * wave1 + 0.2 * wave2 + noise;
-    const clampedEnergy = Math.max(0.08, Math.min(1.0, rawEnergy * shapedEnvelope));
+    const rawEnergy = 0.52 + 0.28 * wave1 + 0.18 * wave2 + spike;
+    const clampedEnergy = Math.max(0.1, Math.min(1.0, rawEnergy * shapedEnvelope));
 
-    // Map to percentage height range: 18% to 92%
-    const heightPercent = Math.round(18 + clampedEnergy * 74);
+    // Map to base height percentage range: 20% to 88%
+    const baseHeight = Math.round(20 + clampedEnergy * 68);
 
-    // Staggered animation delay & duration for fluid, non-synchronous breathing
-    const delay = `${((i * 0.048) % 1.5).toFixed(2)}s`;
-    const dur = `${(1.15 + prng() * 0.65).toFixed(2)}s`;
+    // Assign one of 4 animation variants
+    const animVariant = 1 + (Math.floor(prng() * 4) % 4);
+
+    // Dynamic duration between 0.70s and 1.35s for asynchronous jumping
+    const durSec = (0.7 + prng() * 0.65).toFixed(2);
+    const duration = `${durSec}s`;
+
+    // Negative delay so bars are immediately dancing mid-cycle without synchronized start
+    const delaySec = (-prng() * 2.0).toFixed(2);
+    const delay = `${delaySec}s`;
 
     bars.push({
-      baseHeight: heightPercent,
+      baseHeight,
+      animVariant,
+      duration,
       delay,
-      duration: dur,
     });
   }
 

@@ -118,10 +118,10 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
         </div>
       </div>
 
-      {/* 5. Playback Waveform (Dedicated Full-Width Row) */}
+      {/* 5. Playback Waveform (Dedicated Full-Width Animated Row) */}
       <div className={styles.waveformSection}>
         <div className={styles.waveformHeader}>
-          <span className={styles.waveformLabel}>TRACK WAVEFORM</span>
+          <span className={styles.waveformLabel}>AUDIO CADENCE VISUALIZER</span>
           <span className={styles.waveformModeHint}>
             {isPlaying ? 'ACTIVE AUDIO STREAM' : isPaused ? 'PAUSED' : isBuffering ? 'BUFFERING...' : 'STANDBY'}
           </span>
@@ -129,13 +129,10 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
         <WaveformVisualizer
           videoId={selectedTrack?.videoId}
           playbackState={playbackState}
-          currentTime={currentTime}
-          duration={effectiveDuration}
-          onSeek={onSeek}
         />
       </div>
 
-      {/* 6. Playback Scrubber & Time Labels */}
+      {/* 6. Playback Scrubber & Time Labels (Completely Independent Component) */}
       <div className={styles.progressSection}>
         <PlaybackProgress
           currentTime={currentTime}
