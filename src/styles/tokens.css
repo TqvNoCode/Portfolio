@@ -1,0 +1,96 @@
+/**
+ * Design Tokens — Single source of truth for TQV Engineering Portfolio
+ * Dark Engineering Lab aesthetic
+ */
+
+:root {
+  /* Color Palette — Verified specifications */
+  --color-deep-ink: #0B1217;
+  --color-graphite: #15232C;
+  --color-steel-blue: #314550;
+  --color-mist-white: #E5EEF2;
+  --color-signal-mint: #86D5CE;
+  --color-warm-signal: #E8B987;
+
+  /* Semantic Color Mapping */
+  --color-bg-primary: var(--color-deep-ink);
+  --color-bg-surface: var(--color-graphite);
+  --color-bg-elevated: #1C2D38;
+  --color-bg-deep: #070C10;
+  --color-bg-overlay: rgba(11, 18, 23, 0.85);
+
+  --color-border-subtle: var(--color-steel-blue);
+  --color-border-faint: rgba(49, 69, 80, 0.5);
+  --color-border-focus: var(--color-signal-mint);
+
+  --color-text-primary: var(--color-mist-white);
+  --color-text-secondary: #8EACB9;
+  --color-text-tertiary: #5D7A88;
+  --color-text-inverse: #0B1217;
+
+  --color-accent-mint: var(--color-signal-mint);
+  --color-accent-mint-dim: rgba(134, 213, 206, 0.15);
+  --color-accent-mint-glow: rgba(134, 213, 206, 0.25);
+
+  --color-accent-warm: var(--color-warm-signal);
+  --color-accent-warm-dim: rgba(232, 185, 135, 0.15);
+  --color-accent-warm-glow: rgba(232, 185, 135, 0.25);
+
+  --color-danger: #EF6A6A;
+  --color-success: #86D5CE;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Type Scale */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-5xl: 3rem;      /* 48px */
+  --font-size-6xl: 3.75rem;   /* 60px */
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Layout */
+  --max-width-content: 1200px;
+  --max-width-text: 68ch;
+  --header-height: 4rem;
+
+  /* Transitions & Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 150ms var(--ease-out);
+  --transition-base: 250ms var(--ease-out);
+  --transition-smooth: 400ms var(--ease-out);
+
+  /* Shadows & Depth */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+}

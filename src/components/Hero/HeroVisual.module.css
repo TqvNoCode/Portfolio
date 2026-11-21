@@ -1,0 +1,52 @@
+.visualWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.gridCanvas {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition-smooth);
+}
+
+.gridCanvas:hover {
+  transform: translateY(-2px);
+}
+
+.svgMatrix {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Trace animation */
+.pulseTrace {
+  animation: dash 12s linear infinite;
+}
+
+.pulseTraceReverse {
+  animation: dashReverse 15s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes dashReverse {
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulseTrace,
+  .pulseTraceReverse {
+    animation: none;
+  }
+}

@@ -1,0 +1,165 @@
+.aboutSection {
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-16);
+  position: relative;
+  border-top: 1px solid var(--color-border-faint);
+}
+
+.aboutContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.sectionHeader {
+  max-width: 720px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-accent-mint);
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+}
+
+.eyebrowPrefix {
+  color: var(--color-steel-blue);
+}
+
+.sectionTitle {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+}
+
+.sectionLead {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Pillars Grid */
+.pillarsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .pillarsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.pillarCard {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6);
+  height: 100%;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.iconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconMint {
+  background: var(--color-accent-mint-dim);
+  color: var(--color-accent-mint);
+  border: 1px solid rgba(134, 213, 206, 0.3);
+}
+
+.iconWarm {
+  background: var(--color-accent-warm-dim);
+  color: var(--color-accent-warm);
+  border: 1px solid rgba(232, 185, 135, 0.3);
+}
+
+.iconSteel {
+  background: rgba(49, 69, 80, 0.4);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.cardIndex {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
+
+.cardTitle {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+}
+
+.cardDesc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+  margin-bottom: var(--space-6);
+  flex-grow: 1;
+}
+
+.cardFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-faint);
+}
+
+/* Ethos Banner */
+.ethosBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 4px solid var(--color-accent-mint);
+  border-radius: var(--radius-md);
+}
+
+.ethosCheck {
+  color: var(--color-accent-mint);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ethosTitle {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent-mint);
+  margin-bottom: var(--space-1);
+}
+
+.ethosQuote {
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: 500;
+  line-height: 1.55;
+}

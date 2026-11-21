@@ -1,0 +1,93 @@
+/**
+ * Typography Utilities
+ */
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+p {
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+/* Technical Label / Tag */
+.tech-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: rgba(49, 69, 80, 0.4);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  line-height: 1;
+}
+
+.tech-tag-mint {
+  background: var(--color-accent-mint-dim);
+  color: var(--color-accent-mint);
+  border-color: rgba(134, 213, 206, 0.3);
+}
+
+.tech-tag-warm {
+  background: var(--color-accent-warm-dim);
+  color: var(--color-accent-warm);
+  border-color: rgba(232, 185, 135, 0.3);
+}
+
+/* Code block formatting */
+pre, code {
+  font-family: var(--font-mono);
+}
+
+code {
+  font-size: 0.9em;
+  background: rgba(49, 69, 80, 0.35);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  color: var(--color-accent-mint);
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+}
