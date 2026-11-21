@@ -120,12 +120,6 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
 
       {/* 5. Playback Waveform (Dedicated Full-Width Animated Row) */}
       <div className={styles.waveformSection}>
-        <div className={styles.waveformHeader}>
-          <span className={styles.waveformLabel}>AUDIO CADENCE VISUALIZER</span>
-          <span className={styles.waveformModeHint}>
-            {isPlaying ? 'ACTIVE AUDIO STREAM' : isPaused ? 'PAUSED' : isBuffering ? 'BUFFERING...' : 'STANDBY'}
-          </span>
-        </div>
         <WaveformVisualizer
           videoId={selectedTrack?.videoId}
           playbackState={playbackState}
