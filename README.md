@@ -24,6 +24,11 @@ my_portfolio/
 │   ├── oneko.gif              # Pixel-art cat sprite sheet (3.3 KB)
 │   ├── robots.txt             # Search engine crawl policy
 │   └── sitemap.xml            # Canonical sitemap
+├── functions/                  # Cloudflare Pages Functions (serverless endpoints)
+│   └── api/
+│       └── listening-room.ts   # Secure YouTube Data API v3 proxy
+├── docs/                       # Architecture & setup guides
+│   └── YOUTUBE_DATA_API_SETUP.md # Google Cloud API Key setup instructions
 ├── src/
 │   ├── components/
 │   │   ├── Header/            # Sticky header, section tracking & Cmd+K trigger
@@ -182,7 +187,7 @@ wrangler pages deploy dist --project-name=tqv-portfolio
 - [x] Viewport-aware Three.js 3D Engineering Core with delta-time rotation and SVG matrix fallback.
 - [x] Advanced Workstation Explorer with 8 Environment Specs, 7 Config Files, and 14 CLI Tools.
 - [x] Semantic Lucide React icons integrated across all capability cards and sections.
-- [x] YouTube Music Listening Room with privacy-enhanced embed player and verified focus stream.
+- [x] Custom YouTube Music Listening Room: Two-panel desktop experience (52% Playlist Library / 48% Now Playing), Cloudflare Pages Function proxy, animated SVG waveform, and seeking scrubber.
 - [x] Command Palette: Fully keyboard-accessible (`⌘K` / `Ctrl+K`) with theme toggle action.
 - [x] Production build passes with zero errors and clean code-split chunks.
 - [x] Visual QA verified across desktop (1440px, 1280px) and mobile viewports.

@@ -1,0 +1,6 @@
+# Cloudflare Pages Functions local development variables
+# Copy this file to .dev.vars and add your real Google Cloud API Key
+# Never commit .dev.vars to version control
+
+YOUTUBE_PLAYLIST_ID=PLV8hEip3Kp-o
+YOUTUBE_API_KEY=YOUR_GOOGLE_CLOUD_API_KEY
