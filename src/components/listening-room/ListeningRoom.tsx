@@ -11,19 +11,16 @@ import styles from './ListeningRoom.module.css';
 export const ListeningRoom: React.FC = () => {
   const playlist = usePlaylist();
 
-  // Queue progression when a video finishes
-  const handleTrackEnded = useCallback(() => {
-    const next = playlist.nextTrack();
-    if (next) {
-      player.loadVideo(next.videoId, true);
-    }
-  }, [playlist]);
-
   const defaultVideoId = '0LuignGmX_0';
 
   const player = useYouTubePlayer({
-    initialVideoId: playlist.selectedTrack?.videoId || defaultVideoId,
-    onEnded: handleTrackEnded,
+    initialVideoId: defaultVideoId,
+    onEnded: () => {
+      const next = playlist.nextTrack();
+      if (next) {
+        player.loadVideo(next.videoId, true);
+      }
+    },
   });
 
   // Cue initial video when playlist finishes loading without autoplaying
@@ -31,13 +28,17 @@ export const ListeningRoom: React.FC = () => {
     if (playlist.selectedTrack && player.isReady && !player.currentVideoId) {
       player.loadVideo(playlist.selectedTrack.videoId, false);
     }
-  }, [playlist.selectedTrack, player.currentVideoId, player.isReady, player.loadVideo]);
+  }, [playlist.selectedTrack, player.isReady, player.currentVideoId, player.loadVideo]);
 
   // When user explicitly clicks a track row in the library
   const handleSelectTrack = useCallback(
     (track: PlaylistTrack) => {
       playlist.selectTrack(track);
-      player.loadVideo(track.videoId, true);
+      if (track.embeddable === false) {
+        player.setError(150);
+      } else {
+        player.loadVideo(track.videoId, true);
+      }
     },
     [playlist, player]
   );

@@ -45,6 +45,9 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
   const isPlaying = playbackState === 'PLAYING';
   const isBuffering = playbackState === 'BUFFERING';
   const isPaused = playbackState === 'PAUSED';
+  const isCued = playbackState === 'CUED';
+  const isEnded = playbackState === 'ENDED';
+  const isError = playbackState === 'ERROR' || (selectedTrack !== null && selectedTrack.embeddable === false);
 
   const statusLabel = isPlaying
     ? 'PLAYING'
@@ -52,6 +55,12 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
     ? 'BUFFERING'
     : isPaused
     ? 'PAUSED'
+    : isCued
+    ? 'READY'
+    : isEnded
+    ? 'ENDED'
+    : isError
+    ? 'RESTRICTED'
     : 'STANDBY';
 
   return (
@@ -64,8 +73,23 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({
         </div>
 
         <div className={styles.nowPlayingHeaderRight}>
-          <span className={`${styles.statusBadge} ${isPlaying ? styles.statusPlaying : ''}`}>
+          <span
+            className={`${styles.statusBadge} ${
+              isPlaying
+                ? styles.statusPlaying
+                : isBuffering
+                ? styles.statusBuffering
+                : isCued
+                ? styles.statusReady
+                : isPaused
+                ? styles.statusPaused
+                : isError
+                ? styles.statusError
+                : ''
+            }`}
+          >
             {isPlaying && <span className={styles.pulsingDot} />}
+            {isBuffering && <span className={styles.bufferingDot} />}
             <span>{statusLabel}</span>
           </span>
         </div>
