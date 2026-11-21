@@ -1,0 +1,134 @@
+.sceneContainer {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  height: 460px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  background: radial-gradient(circle at center, var(--color-bg-surface) 0%, var(--color-bg-deep) 100%);
+  border: 1px solid var(--color-border-subtle);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.canvasMount {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+.canvasMount:active {
+  cursor: grabbing;
+}
+
+.canvasMount canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Cybernetic Telemetry Overlay */
+.telemetryOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-4);
+  background: 
+    linear-gradient(to right, var(--color-border-faint) 1px, transparent 1px) 0 0,
+    linear-gradient(to bottom, var(--color-border-faint) 1px, transparent 1px) 0 0;
+  background-size: 24px 24px;
+  background-position: center;
+  opacity: 0.85;
+}
+
+.telemetryTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.telemetryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-accent-mint);
+  background: var(--color-bg-overlay);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  backdrop-filter: blur(4px);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent-mint);
+  box-shadow: 0 0 6px var(--color-accent-mint);
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.interactivePill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-accent-warm);
+  background: var(--color-bg-overlay);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-faint);
+  backdrop-filter: blur(4px);
+}
+
+.telemetryBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  background: var(--color-bg-overlay);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  backdrop-filter: blur(4px);
+}
+
+.metricItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.metricLabel {
+  color: var(--color-text-tertiary);
+}
+
+.metricVal {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+@media (max-width: 520px) {
+  .sceneContainer {
+    height: 380px;
+  }
+}

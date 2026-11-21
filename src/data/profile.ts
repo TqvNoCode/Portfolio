@@ -12,7 +12,6 @@ export interface Profile {
   };
   social: {
     github: string;
-    email: string;
     dotfilesRepo: string;
   };
   interests: string[];
@@ -35,7 +34,6 @@ export const PROFILE: Profile = {
   },
   social: {
     github: 'https://github.com/TqvNoCode',
-    email: 'chienthuatcovua2@gmail.com',
     dotfilesRepo: 'https://github.com/TqvNoCode/Arch',
   },
   interests: [

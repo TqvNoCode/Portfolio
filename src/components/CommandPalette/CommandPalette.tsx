@@ -5,12 +5,14 @@ import {
   Terminal,
   Layers,
   Cpu,
-  Mail,
   FolderGit2,
   X,
-  Copy,
+  Sun,
+  Headphones,
+  ShieldCheck,
 } from 'lucide-react';
 import { PROFILE } from '../../data/profile';
+import { useTheme } from '../theme/ThemeProvider';
 import styles from './CommandPalette.module.css';
 
 interface CommandPaletteProps {
@@ -30,27 +32,15 @@ interface ActionCommand {
 export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState<string>('');
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [copiedNotice, setCopiedNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { theme, toggleTheme } = useTheme();
 
   const navigateTo = (id: string) => {
     onClose();
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const copyEmail = async () => {
-    try {
-      await navigator.clipboard.writeText(PROFILE.social.email);
-      setCopiedNotice('Email copied!');
-      setTimeout(() => {
-        setCopiedNotice(null);
-        onClose();
-      }, 1000);
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -94,15 +84,36 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       id: 'nav-notes',
       title: 'Read Engineering Notes & Writing',
       category: 'Navigation',
-      icon: <Terminal size={16} />,
+      icon: <Layers size={16} />,
       run: () => navigateTo('notes'),
     },
     {
-      id: 'nav-contact',
-      title: 'Go to Contact Section',
+      id: 'nav-listening-room',
+      title: 'Enter Listening Room (Audio Stream)',
       category: 'Navigation',
-      icon: <Mail size={16} />,
+      icon: <Headphones size={16} />,
+      run: () => navigateTo('listening-room'),
+    },
+    {
+      id: 'nav-contact',
+      title: 'Go to Verified Collaboration & Contact',
+      category: 'Navigation',
+      icon: <ShieldCheck size={16} />,
       run: () => navigateTo('contact'),
+    },
+    {
+      id: 'action-theme',
+      title: `Toggle Theme (Switch to ${theme === 'dark' ? 'Light Blueprint' : 'Dark Lab'} Mode)`,
+      category: 'Theme',
+      icon: <Sun size={16} />,
+      run: () => {
+        toggleTheme();
+        setNotice(`Theme changed to ${theme === 'dark' ? 'Light' : 'Dark'} mode`);
+        setTimeout(() => {
+          setNotice(null);
+          onClose();
+        }, 600);
+      },
     },
     {
       id: 'action-github',
@@ -116,20 +127,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     },
     {
       id: 'action-dotfiles',
-      title: 'Open Arch Linux Dotfiles Repository',
+      title: 'Open Arch Linux Dotfiles Repository (TqvNoCode/Arch)',
       category: 'External',
       icon: <FolderGit2 size={16} />,
       run: () => {
         onClose();
         window.open(PROFILE.social.dotfilesRepo, '_blank', 'noopener,noreferrer');
       },
-    },
-    {
-      id: 'action-email',
-      title: `Copy Email (${PROFILE.social.email})`,
-      category: 'Action',
-      icon: <Copy size={16} />,
-      run: copyEmail,
     },
   ];
 
@@ -141,7 +145,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);
-      setCopiedNotice(null);
+      setNotice(null);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
@@ -237,7 +241,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
             <span><kbd>↵</kbd> to select</span>
             <span><kbd>esc</kbd> to close</span>
           </div>
-          {copiedNotice && <span className={styles.copiedFeedback}>{copiedNotice}</span>}
+          {notice && <span className={styles.copiedFeedback}>{notice}</span>}
         </div>
       </div>
     </div>

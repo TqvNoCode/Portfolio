@@ -1,10 +1,10 @@
 /**
  * Design Tokens — Single source of truth for TQV Engineering Portfolio
- * Dark Engineering Lab aesthetic
+ * Dark Engineering Lab aesthetic + Editorial Light Blueprint mode
  */
 
 :root {
-  /* Color Palette — Verified specifications */
+  /* Color Palette — Verified specifications (Default Dark) */
   --color-deep-ink: #0B1217;
   --color-graphite: #15232C;
   --color-steel-blue: #314550;
@@ -17,7 +17,7 @@
   --color-bg-surface: var(--color-graphite);
   --color-bg-elevated: #1C2D38;
   --color-bg-deep: #070C10;
-  --color-bg-overlay: rgba(11, 18, 23, 0.85);
+  --color-bg-overlay: rgba(11, 18, 23, 0.88);
 
   --color-border-subtle: var(--color-steel-blue);
   --color-border-faint: rgba(49, 69, 80, 0.5);
@@ -38,6 +38,8 @@
 
   --color-danger: #EF6A6A;
   --color-success: #86D5CE;
+
+  --grid-line-color: rgba(49, 69, 80, 0.12);
 
   /* Typography */
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -93,4 +95,46 @@
   --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
   --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+}
+
+/* Light Theme — Clean Editorial Engineering Blueprint */
+[data-theme="light"] {
+  --color-deep-ink: #F4F3EF;
+  --color-graphite: #FFFFFF;
+  --color-steel-blue: #D0DBD6;
+  --color-mist-white: #121F26;
+  --color-signal-mint: #157E78;
+  --color-warm-signal: #B56728;
+
+  --color-bg-primary: #F4F3EF;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-elevated: #E8ECE8;
+  --color-bg-deep: #DEE4E0;
+  --color-bg-overlay: rgba(244, 243, 239, 0.92);
+
+  --color-border-subtle: #D0DBD6;
+  --color-border-faint: rgba(208, 219, 214, 0.75);
+  --color-border-focus: var(--color-signal-mint);
+
+  --color-text-primary: #121F26;
+  --color-text-secondary: #48606B;
+  --color-text-tertiary: #6E848F;
+  --color-text-inverse: #FFFFFF;
+
+  --color-accent-mint: #157E78;
+  --color-accent-mint-dim: rgba(21, 126, 120, 0.12);
+  --color-accent-mint-glow: rgba(21, 126, 120, 0.2);
+
+  --color-accent-warm: #B56728;
+  --color-accent-warm-dim: rgba(181, 103, 40, 0.12);
+  --color-accent-warm-glow: rgba(181, 103, 40, 0.2);
+
+  --color-danger: #D94848;
+  --color-success: #157E78;
+
+  --grid-line-color: rgba(21, 126, 120, 0.06);
+
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.16);
 }

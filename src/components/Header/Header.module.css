@@ -12,7 +12,7 @@
 }
 
 .header.scrolled {
-  background-color: rgba(11, 18, 23, 0.9);
+  background-color: var(--color-bg-overlay);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom-color: var(--color-border-subtle);
@@ -113,7 +113,7 @@
   display: none;
 }
 
-@media (min-width: 840px) {
+@media (min-width: 890px) {
   .desktopNav {
     display: block;
   }
@@ -128,7 +128,7 @@
 
 .navLink {
   display: inline-block;
-  padding: 0.4rem 0.75rem;
+  padding: 0.4rem 0.65rem;
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   font-weight: 500;
@@ -140,7 +140,7 @@
 
 .navLink:hover {
   color: var(--color-text-primary);
-  background-color: rgba(49, 69, 80, 0.3);
+  background-color: var(--color-accent-mint-dim);
 }
 
 .navLinkActive {
@@ -182,10 +182,10 @@
 .cmdShortcut kbd {
   font-family: var(--font-mono);
   font-size: 10px;
-  background: rgba(49, 69, 80, 0.5);
+  background: var(--color-bg-elevated);
   padding: 1px 4px;
   border-radius: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border-subtle);
   color: var(--color-text-primary);
 }
 
@@ -227,7 +227,7 @@
   cursor: pointer;
 }
 
-@media (min-width: 840px) {
+@media (min-width: 890px) {
   .mobileToggle {
     display: none;
   }
@@ -239,10 +239,10 @@
   top: var(--header-height);
   left: 0;
   right: 0;
-  background: var(--color-bg-primary);
+  background: var(--color-bg-surface);
   border-bottom: 1px solid var(--color-border-subtle);
   padding: var(--space-4);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-modal);
   animation: slideDown 200ms var(--ease-out);
 }
 
@@ -274,7 +274,7 @@
   font-size: var(--font-size-base);
   color: var(--color-text-primary);
   text-decoration: none;
-  background: var(--color-bg-surface);
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border-subtle);
 }
 
@@ -292,6 +292,19 @@
   height: 1px;
   background: var(--color-border-subtle);
   margin: var(--space-2) 0;
+}
+
+.mobileThemeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
 }
 
 .mobileNavExternal {

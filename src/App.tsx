@@ -6,9 +6,11 @@ import { ProjectShowcase } from './components/ProjectShowcase/ProjectShowcase';
 import { TechnicalArsenal } from './components/TechnicalArsenal/TechnicalArsenal';
 import { DotfilesExplorer } from './components/DotfilesExplorer/DotfilesExplorer';
 import { EngineeringNotes } from './components/EngineeringNotes/EngineeringNotes';
+import { ListeningRoom } from './components/listening-room/ListeningRoom';
 import { Contact } from './components/Contact/Contact';
 import { Footer } from './components/Footer/Footer';
 import { CommandPalette } from './components/CommandPalette/CommandPalette';
+import { OnekoCursor } from './components/oneko/OnekoCursor';
 
 export const App: React.FC = () => {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState<boolean>(false);
@@ -33,6 +35,9 @@ export const App: React.FC = () => {
         Skip to main content
       </a>
 
+      {/* Desktop Companion Cat (Oneko) */}
+      <OnekoCursor />
+
       {/* Header */}
       <Header onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
 
@@ -44,6 +49,7 @@ export const App: React.FC = () => {
         <TechnicalArsenal />
         <DotfilesExplorer />
         <EngineeringNotes />
+        <ListeningRoom />
         <Contact />
       </main>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Terminal, Command, Menu, X, ExternalLink } from 'lucide-react';
 import { NAV_ITEMS } from '../../data/navigation';
 import { PROFILE } from '../../data/profile';
+import { ThemeToggle } from '../theme/ThemeToggle';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -63,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCommandPalette }) => {
             <span className={styles.brandDivider}>/</span>
             <span className={styles.brandSub}>Lab</span>
           </div>
-          <span className={styles.statusIndicator} title="Status: Active">
+          <span className={styles.statusIndicator} title="Status: Active Building">
             <span className={styles.statusDot}></span>
           </span>
         </a>
@@ -92,8 +93,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCommandPalette }) => {
           </ul>
         </nav>
 
-        {/* Right Action: Command Palette trigger & Mobile Menu button */}
+        {/* Right Action: Theme Toggle, Command Palette trigger & Mobile Menu button */}
         <div className={styles.headerActions}>
+          <ThemeToggle />
+
           <button
             type="button"
             onClick={onOpenCommandPalette}
@@ -152,6 +155,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCommandPalette }) => {
                 </li>
               ))}
               <li className={styles.mobileNavDivider}></li>
+              <li className={styles.mobileThemeRow}>
+                <span>Color Theme</span>
+                <ThemeToggle />
+              </li>
               <li>
                 <a
                   href={PROFILE.social.github}

@@ -11,5 +11,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Arsenal', href: '#arsenal', id: 'arsenal' },
   { label: 'Workstation', href: '#workstation', id: 'workstation' },
   { label: 'Notes', href: '#notes', id: 'notes' },
+  { label: 'Listening Room', href: '#listening-room', id: 'listening-room' },
   { label: 'Contact', href: '#contact', id: 'contact' },
 ];

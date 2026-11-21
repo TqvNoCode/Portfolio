@@ -5,11 +5,12 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   isolation: isolate;
-  transition: border-color var(--transition-base), transform var(--transition-fast);
+  transition: border-color var(--transition-base), transform var(--transition-fast), box-shadow var(--transition-base);
 }
 
 .spotlight-card:hover {
-  border-color: rgba(134, 213, 206, 0.4);
+  border-color: var(--color-border-focus);
+  box-shadow: var(--shadow-card);
 }
 
 .spotlight-card__spotlight {
@@ -21,7 +22,7 @@
   z-index: 1;
   background: radial-gradient(
     450px circle at var(--mouse-x, -500px) var(--mouse-y, -500px),
-    var(--spotlight-color, rgba(134, 213, 206, 0.12)),
+    var(--spotlight-color, var(--color-accent-mint-dim)),
     transparent 70%
   );
 }
