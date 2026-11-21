@@ -37,6 +37,8 @@ export const PlaylistTrackRow: React.FC<PlaylistTrackRowProps> = ({
     <div
       role="button"
       tabIndex={0}
+      data-video-id={track.videoId}
+      data-track-index={index}
       onClick={() => onSelect(track)}
       onKeyDown={handleKeyDown}
       className={`${styles.trackRow} ${isSelected ? styles.trackSelected : ''} ${

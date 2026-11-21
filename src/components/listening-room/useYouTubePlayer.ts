@@ -333,6 +333,34 @@ export function useYouTubePlayer({
     }
   }, [isReady]);
 
+  // Resolves a videoId against the current internal player.getPlaylist() order (crucial when shuffled)
+  const playVideoId = useCallback((videoId: string, fallbackIndex?: number) => {
+    if (!playerRef.current) return;
+    try {
+      if (typeof playerRef.current.getPlaylist === 'function') {
+        const currentList = playerRef.current.getPlaylist();
+        if (Array.isArray(currentList) && currentList.length > 0) {
+          const idx = currentList.indexOf(videoId);
+          if (idx >= 0) {
+            playerRef.current.playVideoAt(idx);
+            setCurrentIndex(idx);
+            setCurrentVideoId(videoId);
+            setCurrentTime(0);
+            return;
+          }
+        }
+      }
+      if (typeof fallbackIndex === 'number' && typeof playerRef.current.playVideoAt === 'function') {
+        playerRef.current.playVideoAt(fallbackIndex);
+        setCurrentIndex(fallbackIndex);
+        setCurrentVideoId(videoId);
+        setCurrentTime(0);
+      }
+    } catch (e) {
+      console.error('Error in playVideoId:', e);
+    }
+  }, []);
+
   const nextVideo = useCallback(() => {
     if (playerRef.current && typeof playerRef.current.nextVideo === 'function') {
       try {
@@ -418,6 +446,7 @@ export function useYouTubePlayer({
     pause,
     togglePlay,
     playVideoAt,
+    playVideoId,
     nextVideo,
     previousVideo,
     seekTo,

@@ -15,9 +15,8 @@ export const ListeningRoom: React.FC = () => {
     playlistId,
     onEnded: () => {
       if (playlist.repeat === 'one') {
-        player.playVideoAt(player.currentIndex);
-      } else {
-        player.nextVideo();
+        player.seekTo(0);
+        player.play();
       }
     },
   });
@@ -35,14 +34,14 @@ export const ListeningRoom: React.FC = () => {
     },
   });
 
-  // When user explicitly clicks a track row in the library
+  // When user explicitly clicks a track row in the library (resolves against internal shuffled order)
   const handleSelectTrack = useCallback(
     (track: PlaylistTrack) => {
       playlist.selectTrack(track);
       if (track.embeddable === false) {
         player.setError(150);
       } else {
-        player.playVideoAt(track.position - 1);
+        player.playVideoId(track.videoId, track.position - 1);
       }
     },
     [playlist, player]
