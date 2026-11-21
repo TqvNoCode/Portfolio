@@ -61,9 +61,8 @@ my_portfolio/
 │   ├── App.tsx                # Application root with skip links & keyboard bindings
 │   ├── main.tsx               # Entry point with ThemeProvider wrapper
 │   └── vite-env.d.ts          # Vite & CSS Modules declarations
-├── reports/                   # Performance & acceptance sprint reports
-│   ├── ENHANCEMENT_SPRINT_V2_REPORT.md
-│   └── SPRINT_V3_PERFORMANCE_REPORT.md
+├── docs/                      # Architecture and setup documentation
+│   └── YOUTUBE_PLAYLIST_SETUP.md
 ├── DESIGN.md                  # Comprehensive Design Specification
 └── package.json               # Dependencies (React 19, Vite, Three.js, Motion, Lucide)
 ```
