@@ -105,6 +105,25 @@
   margin-bottom: var(--space-1);
 }
 
+.specHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.specIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-faint);
+  color: var(--color-accent-mint);
+  flex-shrink: 0;
+}
+
 .specLabel {
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
@@ -496,6 +515,19 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+.cliMiniIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-faint);
+  color: var(--color-accent-mint);
+  flex-shrink: 0;
 }
 
 .toolkitName {

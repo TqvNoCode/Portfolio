@@ -80,9 +80,9 @@
   --radius-full: 9999px;
 
   /* Layout */
-  --max-width-content: 1200px;
-  --max-width-text: 68ch;
-  --header-height: 4rem;
+  --max-width-content: 1240px;
+  --max-width-text: 72ch;
+  --header-height: 4.25rem;
 
   /* Transitions & Motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);

@@ -2,6 +2,17 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import styles from './EngineeringCoreScene.module.css';
 
+/**
+ * EngineeringCoreScene — Optimized Three.js WebGL Core
+ *
+ * Sprint V3 Performance Optimizations:
+ * 1. IntersectionObserver-based rendering: Pauses rAF loop when Hero leaves the viewport.
+ * 2. Page Visibility API: Pauses animation loop when tab is hidden or inactive.
+ * 3. Delta-time updates: Clamped delta-time based rotations ensuring 60/120/144Hz consistency without speed variance.
+ * 4. Zero per-frame allocations: Pre-allocated numeric vectors and buffers.
+ * 5. Adaptive DPR monitoring: Dynamically scales pixel ratio if frame drops occur, restoring when stable.
+ * 6. Clean lifecycle disposal: Prevents WebGL context and VRAM leaks.
+ */
 export const EngineeringCoreScene: React.FC = () => {
   const mountRef = useRef<HTMLDivElement | null>(null);
 
@@ -10,8 +21,8 @@ export const EngineeringCoreScene: React.FC = () => {
     if (!container) return;
 
     // Dimensions
-    const width = container.clientWidth || 520;
-    const height = container.clientHeight || 460;
+    let width = container.clientWidth || 520;
+    let height = container.clientHeight || 460;
 
     // Scene
     const scene = new THREE.Scene();
@@ -20,6 +31,9 @@ export const EngineeringCoreScene: React.FC = () => {
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 0, 7.8);
 
+    // Initial DPR: Cap at 2.0 for high-DPI crispness
+    const targetDPR = Math.min(window.devicePixelRatio || 1, 2);
+
     // Renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -27,7 +41,7 @@ export const EngineeringCoreScene: React.FC = () => {
       powerPreference: 'high-performance',
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(targetDPR);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
     container.appendChild(renderer.domElement);
@@ -133,11 +147,21 @@ export const EngineeringCoreScene: React.FC = () => {
     warmLight.position.set(-4, -3, 3);
     scene.add(warmLight);
 
-    // Interaction & Animation State
+    // Animation & State
     let targetRotX = 0;
     let targetRotY = 0;
-    let animFrameId: number;
+    let animFrameId: number = 0;
+    let isRendering = false;
+    let isInViewport = true;
 
+    // Adaptive performance tracking
+    let frameCount = 0;
+    let frameTimeSum = 0;
+    let currentDPR = targetDPR;
+
+    const clock = new THREE.Clock();
+
+    // Mouse movement handler
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -146,69 +170,137 @@ export const EngineeringCoreScene: React.FC = () => {
       targetRotX = -y * 0.45;
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-    // Handle Resize
+    // Resize handler
     const handleResize = () => {
       if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
+      width = container.clientWidth;
+      height = container.clientHeight;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      renderer.setSize(width, height);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
 
-    // Animation Loop
-    let clock = new THREE.Clock();
+    // Main delta-time animation loop
+    let totalElapsedTime = 0;
     const animate = () => {
+      if (!isRendering) return;
       animFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
 
-      // Continuous autonomous rotation
-      solidCore.rotation.y = elapsedTime * 0.2;
-      solidCore.rotation.x = elapsedTime * 0.12;
+      // Delta time clamped to 100ms
+      const delta = Math.min(clock.getDelta(), 0.1);
+      totalElapsedTime += delta;
 
-      wireCore.rotation.y = elapsedTime * 0.22;
-      wireCore.rotation.x = elapsedTime * 0.14;
+      // Adaptive DPR check every 60 frames
+      frameCount++;
+      frameTimeSum += delta;
+      if (frameCount >= 60) {
+        const avgFrameTime = frameTimeSum / 60;
+        if (avgFrameTime > 0.022 && currentDPR > 1.0) {
+          // Frame rate dropped below ~45 FPS: scale DPR down to 1.0
+          currentDPR = 1.0;
+          renderer.setPixelRatio(1.0);
+        } else if (avgFrameTime < 0.016 && currentDPR < targetDPR) {
+          // Frame rate recovered to 60 FPS: restore target DPR
+          currentDPR = targetDPR;
+          renderer.setPixelRatio(targetDPR);
+        }
+        frameCount = 0;
+        frameTimeSum = 0;
+      }
 
-      ring1.rotation.z = elapsedTime * 0.35;
-      ring2.rotation.z = -elapsedTime * 0.28;
+      // Delta-time based continuous rotation (independent of display Hz)
+      solidCore.rotation.y += 0.22 * delta;
+      solidCore.rotation.x += 0.13 * delta;
 
-      // Position satellites along orbits
-      const sat1Angle = elapsedTime * 0.9;
+      wireCore.rotation.y += 0.24 * delta;
+      wireCore.rotation.x += 0.15 * delta;
+
+      ring1.rotation.z += 0.38 * delta;
+      ring2.rotation.z -= 0.31 * delta;
+
+      // Position satellites along orbital rings
+      const sat1Angle = totalElapsedTime * 0.95;
       sat1.position.set(
         Math.cos(sat1Angle) * 2.35,
         Math.sin(sat1Angle) * 2.35 * Math.sin(ring1.rotation.x),
         Math.sin(sat1Angle) * 2.35 * Math.cos(ring1.rotation.x)
       );
 
-      const sat2Angle = -elapsedTime * 0.7;
+      const sat2Angle = -totalElapsedTime * 0.75;
       sat2.position.set(
         Math.cos(sat2Angle) * 2.85 * Math.cos(ring2.rotation.y),
         Math.sin(sat2Angle) * 2.85,
         Math.cos(sat2Angle) * 2.85 * Math.sin(ring2.rotation.y)
       );
 
-      particles.rotation.y = elapsedTime * 0.05;
+      particles.rotation.y += 0.05 * delta;
 
       // Smooth mouse parallax lerp
-      coreGroup.rotation.y += (targetRotY - coreGroup.rotation.y) * 0.05;
-      coreGroup.rotation.x += (targetRotX - coreGroup.rotation.x) * 0.05;
+      coreGroup.rotation.y += (targetRotY - coreGroup.rotation.y) * 0.06;
+      coreGroup.rotation.x += (targetRotX - coreGroup.rotation.x) * 0.06;
 
       renderer.render(scene, camera);
     };
 
-    animate();
+    const startRendering = () => {
+      if (!isRendering && isInViewport && !document.hidden) {
+        isRendering = true;
+        clock.start();
+        animate();
+      }
+    };
+
+    const stopRendering = () => {
+      isRendering = false;
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+      }
+    };
+
+    // IntersectionObserver: Pause rendering when scrolled out of view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isInViewport = entry.isIntersecting;
+          if (isInViewport) {
+            startRendering();
+          } else {
+            stopRendering();
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(container);
+
+    // Page Visibility API handler
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopRendering();
+      } else if (isInViewport) {
+        startRendering();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Initial start
+    startRendering();
 
     // Cleanup on unmount
     return () => {
-      cancelAnimationFrame(animFrameId);
+      stopRendering();
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       container.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
 
-      // Dispose Three.js objects
+      // Cleanly dispose Three.js geometries and materials
       solidGeom.dispose();
       solidMat.dispose();
       wireGeom.dispose();

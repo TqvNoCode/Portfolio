@@ -8,6 +8,25 @@ import {
   FileCode,
   FolderGit2,
   Wrench,
+  Server,
+  Layout,
+  Command,
+  Code2,
+  Layers,
+  Type,
+  Search,
+  Filter,
+  FileText,
+  FolderTree,
+  GitBranch,
+  Zap,
+  FileCode2,
+  Package,
+  Cpu,
+  Bug,
+  Boxes,
+  Activity,
+  RefreshCw,
 } from 'lucide-react';
 import {
   DOTFILES_DATA,
@@ -19,6 +38,34 @@ import { PROFILE } from '../../data/profile';
 import styles from './DotfilesExplorer.module.css';
 
 type ExplorerViewMode = 'configs' | 'toolkit';
+
+const SPEC_ICON_MAP: Record<string, React.ReactNode> = {
+  Server: <Server size={16} aria-hidden="true" />,
+  Layout: <Layout size={16} aria-hidden="true" />,
+  Terminal: <Terminal size={16} aria-hidden="true" />,
+  Command: <Command size={16} aria-hidden="true" />,
+  Code2: <Code2 size={16} aria-hidden="true" />,
+  Layers: <Layers size={16} aria-hidden="true" />,
+  Type: <Type size={16} aria-hidden="true" />,
+  FolderGit2: <FolderGit2 size={16} aria-hidden="true" />,
+};
+
+const CLI_ICON_MAP: Record<string, React.ReactNode> = {
+  Search: <Search size={16} aria-hidden="true" />,
+  Filter: <Filter size={16} aria-hidden="true" />,
+  FileText: <FileText size={16} aria-hidden="true" />,
+  FolderTree: <FolderTree size={16} aria-hidden="true" />,
+  GitBranch: <GitBranch size={16} aria-hidden="true" />,
+  FolderGit2: <FolderGit2 size={16} aria-hidden="true" />,
+  Zap: <Zap size={16} aria-hidden="true" />,
+  FileCode2: <FileCode2 size={16} aria-hidden="true" />,
+  Package: <Package size={16} aria-hidden="true" />,
+  Cpu: <Cpu size={16} aria-hidden="true" />,
+  Bug: <Bug size={16} aria-hidden="true" />,
+  Boxes: <Boxes size={16} aria-hidden="true" />,
+  Activity: <Activity size={16} aria-hidden="true" />,
+  RefreshCw: <RefreshCw size={16} aria-hidden="true" />,
+};
 
 export const DotfilesExplorer: React.FC = () => {
   const [viewMode, setViewMode] = useState<ExplorerViewMode>('configs');
@@ -73,16 +120,24 @@ export const DotfilesExplorer: React.FC = () => {
 
         {/* Environment Overview Specs Grid */}
         <div className={styles.specsOverviewGrid} aria-label="Workstation Hardware and OS Specifications">
-          {ENVIRONMENT_SPECS.map((spec) => (
-            <div key={spec.label} className={styles.specCard}>
-              <div className={styles.specHeader}>
-                <span className={styles.specLabel}>{spec.label}</span>
-                <span className={styles.specBadge}>{spec.badge}</span>
+          {ENVIRONMENT_SPECS.map((spec) => {
+            const specIcon = SPEC_ICON_MAP[spec.iconName] || <Server size={16} />;
+            return (
+              <div key={spec.label} className={styles.specCard}>
+                <div className={styles.specHeader}>
+                  <div className={styles.specHeaderLeft}>
+                    <div className={styles.specIconWrap} aria-hidden="true">
+                      {specIcon}
+                    </div>
+                    <span className={styles.specLabel}>{spec.label}</span>
+                  </div>
+                  <span className={styles.specBadge}>{spec.badge}</span>
+                </div>
+                <div className={styles.specValue}>{spec.value}</div>
+                <div className={styles.specDetail}>{spec.detail}</div>
               </div>
-              <div className={styles.specValue}>{spec.value}</div>
-              <div className={styles.specDetail}>{spec.detail}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Mode Switcher */}
@@ -248,27 +303,33 @@ export const DotfilesExplorer: React.FC = () => {
 
             {/* Tools Grid */}
             <div className={styles.toolkitGrid}>
-              {filteredCliTools.map((tool) => (
-                <div key={tool.name} className={styles.toolkitCard}>
-                  <div className={styles.toolkitCardHeader}>
-                    <div className={styles.toolIdentity}>
-                      <span className={styles.toolkitName}>{tool.name}</span>
-                      <span className="tech-tag tech-tag-mint">{tool.category}</span>
+              {filteredCliTools.map((tool) => {
+                const toolIcon = CLI_ICON_MAP[tool.iconName] || <Wrench size={16} />;
+                return (
+                  <div key={tool.name} className={styles.toolkitCard}>
+                    <div className={styles.toolkitCardHeader}>
+                      <div className={styles.toolIdentity}>
+                        <div className={styles.cliMiniIcon} aria-hidden="true">
+                          {toolIcon}
+                        </div>
+                        <span className={styles.toolkitName}>{tool.name}</span>
+                        <span className="tech-tag tech-tag-mint">{tool.category}</span>
+                      </div>
+                    </div>
+
+                    <div className={styles.commandSnippet}>
+                      <code>$ {tool.command}</code>
+                    </div>
+
+                    <p className={styles.toolDescription}>{tool.description}</p>
+
+                    <div className={styles.workflowRole}>
+                      <span className={styles.roleLabel}>Workflow Impact:</span>
+                      <p className={styles.roleText}>{tool.roleInWorkflow}</p>
                     </div>
                   </div>
-
-                  <div className={styles.commandSnippet}>
-                    <code>$ {tool.command}</code>
-                  </div>
-
-                  <p className={styles.toolDescription}>{tool.description}</p>
-
-                  <div className={styles.workflowRole}>
-                    <span className={styles.roleLabel}>Workflow Impact:</span>
-                    <p className={styles.roleText}>{tool.roleInWorkflow}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

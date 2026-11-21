@@ -3,6 +3,7 @@ export interface EnvironmentSpec {
   value: string;
   badge: string;
   detail: string;
+  iconName: string;
 }
 
 export interface DotfileEntry {
@@ -24,6 +25,7 @@ export interface CliTool {
   category: 'Terminal Utilities' | 'Git Workflow' | 'File & Buffer Navigation' | 'Development & Runtimes' | 'System Management';
   description: string;
   roleInWorkflow: string;
+  iconName: string;
 }
 
 export const ENVIRONMENT_SPECS: EnvironmentSpec[] = [
@@ -32,48 +34,56 @@ export const ENVIRONMENT_SPECS: EnvironmentSpec[] = [
     value: 'Arch Linux',
     badge: 'Rolling Release',
     detail: 'Minimalist base with Linux Zen/Vanilla kernel, optimized for developer latency.',
+    iconName: 'Server',
   },
   {
     label: 'Window Manager',
     value: 'i3-gaps / X11',
     badge: 'Tiling WM',
     detail: 'Keyboard-driven window tiling with multi-monitor workspace tagging.',
+    iconName: 'Layout',
   },
   {
     label: 'Terminal Emulator',
     value: 'Kitty GPU',
     badge: 'OpenGL Canvas',
     detail: 'Hardware-accelerated terminal with font ligature rendering and sub-millisecond input response.',
+    iconName: 'Terminal',
   },
   {
     label: 'Shell & Prompt',
     value: 'Zsh + Powerlevel10k',
     badge: 'Instant Prompt',
     detail: 'Asynchronous prompt execution with zero typing delay on terminal open.',
+    iconName: 'Command',
   },
   {
     label: 'Code Editor',
     value: 'Neovim (lazy.nvim)',
     badge: 'Modal Core',
     detail: 'LSP diagnostics via Mason, Treesitter syntax highlighting, and sub-35ms startup.',
+    iconName: 'Code2',
   },
   {
     label: 'Multiplexer',
     value: 'Tmux + TPM',
     badge: 'Prefix Ctrl-A',
     detail: 'Persistent terminal session state with Catppuccin telemetry and path-aware splits.',
+    iconName: 'Layers',
   },
   {
     label: 'Typography',
     value: 'JetBrainsMono NF',
     badge: 'Nerd Font Icons',
     detail: 'Paired with MesloLGS NF for Powerlevel10k shell icons and code readability.',
+    iconName: 'Type',
   },
   {
     label: 'Symlink Management',
     value: 'GNU Stow',
     badge: 'Zero Pollution',
     detail: 'Maintains version-controlled ~/dotfiles mirrored to $HOME without manual symlinks.',
+    iconName: 'FolderGit2',
   },
 ];
 
@@ -352,6 +362,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Terminal Utilities',
     description: 'Rust-powered regex search utility that respects .gitignore by default.',
     roleInWorkflow: 'Used within Neovim fzf-lua for live codebase grep and instant symbol lookups across large repositories.',
+    iconName: 'Search',
   },
   {
     name: 'fzf',
@@ -359,6 +370,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Terminal Utilities',
     description: 'General-purpose command-line fuzzy finder with real-time file previewing.',
     roleInWorkflow: 'Powers terminal history lookup, fzf-tab Zsh completion, and file jump buffers in Neovim.',
+    iconName: 'Filter',
   },
   {
     name: 'bat',
@@ -366,6 +378,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Terminal Utilities',
     description: 'A cat clone with syntax highlighting and Git integration.',
     roleInWorkflow: 'Used as the default preview pager for fzf and terminal inspection without launching full editors.',
+    iconName: 'FileText',
   },
   {
     name: 'eza',
@@ -373,6 +386,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Terminal Utilities',
     description: 'Modern, maintained replacement for ls with color coding and Git status flags.',
     roleInWorkflow: 'Replaces ls in ~/.zshrc aliases for rapid directory inspection and file permissions checking.',
+    iconName: 'FolderTree',
   },
   {
     name: 'lazygit',
@@ -380,6 +394,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Git Workflow',
     description: 'Simple terminal UI for git commands written in Go.',
     roleInWorkflow: 'Streamlines interactive commit staging, hunk inspection, and branch switching directly inside tmux panes.',
+    iconName: 'GitBranch',
   },
   {
     name: 'gh',
@@ -387,6 +402,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Git Workflow',
     description: 'GitHub official CLI tool for managing repositories and PRs from the terminal.',
     roleInWorkflow: 'Automates release tags, PR reviews, and remote branch cloning without leaving the terminal.',
+    iconName: 'FolderGit2',
   },
   {
     name: 'zoxide',
@@ -394,6 +410,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'File & Buffer Navigation',
     description: 'Smarter cd command that learns your habits and jumps to frequent folders.',
     roleInWorkflow: 'Enables single-keyword jumps between deeply nested project directories across workspaces.',
+    iconName: 'Zap',
   },
   {
     name: 'oil.nvim',
@@ -401,6 +418,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'File & Buffer Navigation',
     description: 'Neovim file manager that lets you edit your filesystem like a normal buffer.',
     roleInWorkflow: 'Renaming, creating, and moving files with standard Vim motions (d, y, p) directly inside Neovim.',
+    iconName: 'FileCode2',
   },
   {
     name: 'uv',
@@ -408,6 +426,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Development & Runtimes',
     description: 'Extremely fast Python package and project manager written in Rust.',
     roleInWorkflow: 'Instantly creates isolated Python virtual environments for ML models, PyTorch experiments, and MathWeave algorithms.',
+    iconName: 'Package',
   },
   {
     name: 'clangd / gcc',
@@ -415,6 +434,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Development & Runtimes',
     description: 'LLVM C/C++ language server with background indexing and AST analysis.',
     roleInWorkflow: 'Used in Neovim for native C/C++ engine development and low-level numerical algorithms.',
+    iconName: 'Cpu',
   },
   {
     name: 'debugpy / codelldb',
@@ -422,6 +442,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'Development & Runtimes',
     description: 'Debug Adapter Protocol implementations for Python and native binaries.',
     roleInWorkflow: 'Enables interactive breakpoints, step debugging, and variable inspection inside Neovim via toggleterm.',
+    iconName: 'Bug',
   },
   {
     name: 'pacman & yay',
@@ -429,6 +450,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'System Management',
     description: 'Arch Linux official package manager and trusted AUR helper.',
     roleInWorkflow: 'Keeps the entire development stack on bleeding-edge rolling releases with verifiable cryptographic signatures.',
+    iconName: 'Boxes',
   },
   {
     name: 'btop',
@@ -436,6 +458,7 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'System Management',
     description: 'Resource monitor that shows usage and stats for processor, memory, disks, and network.',
     roleInWorkflow: 'Monitors CPU/GPU thread saturation and VRAM allocation during local machine learning inference sessions.',
+    iconName: 'Activity',
   },
   {
     name: 'tmux-resurrect',
@@ -443,5 +466,6 @@ export const CLI_TOOLKIT: CliTool[] = [
     category: 'System Management',
     description: 'Tmux plugin that restores continuous environment state across reboots.',
     roleInWorkflow: 'Preserves exact window and pane layouts across Arch workstation updates and kernel restarts.',
+    iconName: 'RefreshCw',
   },
 ];

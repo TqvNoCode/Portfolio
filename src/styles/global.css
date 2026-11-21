@@ -52,11 +52,19 @@ body::before {
   transition: background-image var(--transition-base);
 }
 
-/* View Transitions API smooth cross-fade */
+/* View Transitions API: Radial Circular Reveal configuration */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.25s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
 }
 
 /* Accessible focus visible indicators */
@@ -145,6 +153,12 @@ body::before {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }
 

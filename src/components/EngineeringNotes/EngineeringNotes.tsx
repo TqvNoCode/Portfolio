@@ -1,8 +1,13 @@
 import React from 'react';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, Package, Terminal, FileCode2 } from 'lucide-react';
 import { ENGINEERING_NOTES } from '../../data/notes';
 import { SpotlightCard } from '../react-bits/SpotlightCard';
 import styles from './EngineeringNotes.module.css';
+
+const NOTE_ICON_MAP: Record<string, React.ReactNode> = {
+  Package: <Package size={15} aria-hidden="true" />,
+  Terminal: <Terminal size={15} aria-hidden="true" />,
+};
 
 export const EngineeringNotes: React.FC = () => {
   return (
@@ -22,46 +27,55 @@ export const EngineeringNotes: React.FC = () => {
 
         {/* Notes Grid */}
         <div className={styles.notesGrid}>
-          {ENGINEERING_NOTES.map((note) => (
-            <SpotlightCard
-              key={note.id}
-              className={styles.noteCard}
-              spotlightColor="rgba(232, 185, 135, 0.12)"
-            >
-              <div className={styles.noteMeta}>
-                <div className={styles.metaItem}>
-                  <Calendar size={13} aria-hidden="true" />
-                  <span>{note.date}</span>
+          {ENGINEERING_NOTES.map((note) => {
+            const noteIcon = NOTE_ICON_MAP[note.iconName] || <FileCode2 size={15} />;
+            return (
+              <SpotlightCard
+                key={note.id}
+                className={styles.noteCard}
+                spotlightColor="rgba(232, 185, 135, 0.12)"
+              >
+                <div className={styles.noteTopBar}>
+                  <div className={styles.noteTypeBadge}>
+                    {noteIcon}
+                    <span>{note.tags[0]}</span>
+                  </div>
+                  <div className={styles.noteMeta}>
+                    <div className={styles.metaItem}>
+                      <Calendar size={13} aria-hidden="true" />
+                      <span>{note.date}</span>
+                    </div>
+                    <span className={styles.metaDivider}>•</span>
+                    <div className={styles.metaItem}>
+                      <Clock size={13} aria-hidden="true" />
+                      <span>{note.readingTime}</span>
+                    </div>
+                  </div>
                 </div>
-                <span className={styles.metaDivider}>•</span>
-                <div className={styles.metaItem}>
-                  <Clock size={13} aria-hidden="true" />
-                  <span>{note.readingTime}</span>
-                </div>
-              </div>
 
-              <h3 className={styles.noteTitle}>{note.title}</h3>
-              <p className={styles.noteExcerpt}>{note.excerpt}</p>
+                <h3 className={styles.noteTitle}>{note.title}</h3>
+                <p className={styles.noteExcerpt}>{note.excerpt}</p>
 
-              <div className={styles.noteContentPreview}>
-                {note.content.map((paragraph, pIdx) => (
-                  <p key={pIdx} className={styles.noteParagraph}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-
-              <div className={styles.noteFooter}>
-                <div className={styles.tagList}>
-                  {note.tags.map((tag, tIdx) => (
-                    <span key={tIdx} className="tech-tag">
-                      {tag}
-                    </span>
+                <div className={styles.noteContentPreview}>
+                  {note.content.map((paragraph, pIdx) => (
+                    <p key={pIdx} className={styles.noteParagraph}>
+                      {paragraph}
+                    </p>
                   ))}
                 </div>
-              </div>
-            </SpotlightCard>
-          ))}
+
+                <div className={styles.noteFooter}>
+                  <div className={styles.tagList}>
+                    {note.tags.map((tag, tIdx) => (
+                      <span key={tIdx} className="tech-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </SpotlightCard>
+            );
+          })}
         </div>
       </div>
     </section>

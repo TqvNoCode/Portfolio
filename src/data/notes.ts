@@ -6,6 +6,7 @@ export interface EngineeringNote {
   tags: string[];
   excerpt: string;
   content: string[];
+  iconName: string;
 }
 
 export const ENGINEERING_NOTES: EngineeringNote[] = [
@@ -15,6 +16,7 @@ export const ENGINEERING_NOTES: EngineeringNote[] = [
     date: 'October 2026',
     readingTime: '4 min read',
     tags: ['Python', 'Linux', 'Packaging', 'uv', 'PyInstaller'],
+    iconName: 'Package',
     excerpt:
       'How we achieved reproducible packaging, sub-second dependency installation, and clean desktop integration for a Python math suite on Arch Linux.',
     content: [
@@ -29,11 +31,12 @@ export const ENGINEERING_NOTES: EngineeringNote[] = [
     date: 'September 2026',
     readingTime: '5 min read',
     tags: ['Arch Linux', 'Neovim', 'Tmux', 'Kitty', 'Productivity'],
+    iconName: 'Terminal',
     excerpt:
       'Designing a frictionless keyboard-centric development setup with sub-30ms editor startup, true-color pass-through, and unified navigation.',
     content: [
       'A developer’s editor and terminal are not separate tools; they are a continuous cognitive surface. Creating a setup that removes friction between pane navigation and code editing requires careful coordination.',
-      'In our setup, Kitty serves as the GPU-accelerated terminal canvas, automatically bootstrapping Tmux on launch. By mapping Tmux’s prefix to `Ctrl-A` and aligning split shortcuts to intuitive path-preserving keys (`\` for vertical, `-` for horizontal), context-switching overhead vanishes.',
+      'In our setup, Kitty serves as the GPU-accelerated terminal canvas, automatically bootstrapping Tmux on launch. By mapping Tmux’s prefix to `Ctrl-A` and aligning split shortcuts to intuitive path-preserving keys (`\\` for vertical, `-` for horizontal), context-switching overhead vanishes.',
       'Within Neovim, lazy.nvim ensures that heavy LSP servers like Pyright and clangd only spin up when their corresponding file types are accessed, keeping editor bootstrap times below 30ms on Arch Linux.',
     ],
   },

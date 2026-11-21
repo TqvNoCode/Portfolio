@@ -65,6 +65,26 @@
   height: 100%;
 }
 
+.noteTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.noteTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent-mint);
+  background: var(--color-accent-mint-dim);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(134, 213, 206, 0.25);
+}
+
 .noteMeta {
   display: flex;
   align-items: center;

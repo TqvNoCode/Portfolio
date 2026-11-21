@@ -1,13 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 
 /**
- * OnekoCursor — Desktop pixel-art companion cat that follows the cursor
+ * OnekoCursor — High-Performance Desktop Companion Cat
  *
- * Rules:
- * 1. Desktop only: Auto-disabled if pointer is coarse or device lacks hover
- * 2. Accessibility: Auto-disabled if prefers-reduced-motion is active
- * 3. Non-intrusive: pointer-events: none, aria-hidden="true"
- * 4. Single rAF / tick interval, cleans up on unmount
+ * Sprint V3 Performance Optimizations:
+ * 1. Decoupled pointer tracking: Mousemove passively updates a mutable coordinate ref (0 React state updates).
+ * 2. 60 FPS requestAnimationFrame with delta-time: smooth position interpolation independent of refresh rate.
+ * 3. Decoupled sprite animation clock: physical movement updates at 60 FPS while sprite frame ticks on retro cadence.
+ * 4. 100% GPU compositing: Uses transform: translate3d(x, y, 0) instead of layout-triggering top/left.
+ * 5. Page Visibility API: Pauses rendering loop when document is hidden to conserve CPU/GPU.
+ * 6. Accessibility & Desktop safeguards: Automatically disabled on touch screens and prefers-reduced-motion.
  */
 export const OnekoCursor: React.FC = () => {
   const nekoRef = useRef<HTMLDivElement | null>(null);
@@ -24,16 +26,22 @@ export const OnekoCursor: React.FC = () => {
     const nekoEl = nekoRef.current;
     if (!nekoEl) return;
 
-    let nekoPosX = 48;
-    let nekoPosY = 48;
-    let mousePosX = nekoPosX;
-    let mousePosY = nekoPosY;
+    // Position state (in refs to avoid React re-renders)
+    const pos = { x: 48, y: 48 };
+    const target = { x: 48, y: 48 };
+
     let frameCount = 0;
     let idleTime = 0;
     let idleAnimation: string | null = null;
     let idleAnimationFrame = 0;
 
-    const nekoSpeed = 11;
+    // Timing
+    let lastTime = performance.now();
+    let spriteTimer = 0;
+    const SPRITE_CADENCE_MS = 130; // Pixel-art sprite step interval
+    const RUN_SPEED_PPS = 280; // Pixels per second
+
+    let animFrameId: number;
 
     const spriteSets: Record<string, [number, number][]> = {
       idle: [[-3, -3]],
@@ -111,15 +119,15 @@ export const OnekoCursor: React.FC = () => {
       idleAnimationFrame = 0;
     };
 
-    const idle = () => {
+    const runIdleCycle = () => {
       idleTime += 1;
 
       if (idleTime > 10 && Math.floor(Math.random() * 200) === 0 && idleAnimation === null) {
         const availableAnimations = ['sleeping', 'scratchSelf'];
-        if (nekoPosX < 32) availableAnimations.push('scratchWallW');
-        if (nekoPosY < 32) availableAnimations.push('scratchWallN');
-        if (nekoPosX > window.innerWidth - 32) availableAnimations.push('scratchWallE');
-        if (nekoPosY > window.innerHeight - 32) availableAnimations.push('scratchWallS');
+        if (pos.x < 32) availableAnimations.push('scratchWallW');
+        if (pos.y < 32) availableAnimations.push('scratchWallN');
+        if (pos.x > window.innerWidth - 32) availableAnimations.push('scratchWallE');
+        if (pos.y > window.innerHeight - 32) availableAnimations.push('scratchWallS');
 
         idleAnimation = availableAnimations[Math.floor(Math.random() * availableAnimations.length)];
       }
@@ -152,55 +160,90 @@ export const OnekoCursor: React.FC = () => {
       idleAnimationFrame += 1;
     };
 
-    const updateFrame = () => {
-      frameCount += 1;
-      const diffX = nekoPosX - mousePosX;
-      const diffY = nekoPosY - mousePosY;
+    // Main 60 FPS Animation Loop
+    const loop = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      const diffX = pos.x - target.x;
+      const diffY = pos.y - target.y;
       const distance = Math.hypot(diffX, diffY);
 
-      if (distance < nekoSpeed || distance < 42) {
-        idle();
-        return;
+      if (distance < 44) {
+        // Close enough to cursor: idle cycle
+        spriteTimer += dt * 1000;
+        if (spriteTimer >= SPRITE_CADENCE_MS) {
+          spriteTimer = 0;
+          runIdleCycle();
+        }
+      } else {
+        // Running towards cursor
+        idleAnimation = null;
+        idleAnimationFrame = 0;
+
+        if (idleTime > 1) {
+          setSprite('alert', 0);
+          idleTime = Math.min(idleTime, 7) - 1;
+        } else {
+          // Smooth physical movement at 60 FPS
+          const step = Math.min(distance, RUN_SPEED_PPS * dt);
+          pos.x -= (diffX / distance) * step;
+          pos.y -= (diffY / distance) * step;
+
+          // Keep within viewport boundaries
+          pos.x = Math.min(Math.max(16, pos.x), window.innerWidth - 16);
+          pos.y = Math.min(Math.max(16, pos.y), window.innerHeight - 16);
+
+          // Update directional sprite on retro clock
+          spriteTimer += dt * 1000;
+          if (spriteTimer >= SPRITE_CADENCE_MS) {
+            spriteTimer = 0;
+            frameCount += 1;
+
+            let direction = '';
+            if (diffY / distance > 0.5) direction += 'N';
+            if (diffY / distance < -0.5) direction += 'S';
+            if (diffX / distance > 0.5) direction += 'W';
+            if (diffX / distance < -0.5) direction += 'E';
+
+            setSprite(direction || 'idle', frameCount);
+          }
+        }
       }
 
-      idleAnimation = null;
-      idleAnimationFrame = 0;
+      // GPU-accelerated translate3d (avoids layout recalculation)
+      nekoEl.style.transform = `translate3d(${Math.round(pos.x - 16)}px, ${Math.round(pos.y - 16)}px, 0)`;
 
-      if (idleTime > 1) {
-        setSprite('alert', 0);
-        idleTime = Math.min(idleTime, 7) - 1;
-        return;
-      }
-
-      let direction = '';
-      if (diffY / distance > 0.5) direction += 'N';
-      if (diffY / distance < -0.5) direction += 'S';
-      if (diffX / distance > 0.5) direction += 'W';
-      if (diffX / distance < -0.5) direction += 'E';
-
-      setSprite(direction || 'idle', frameCount);
-
-      nekoPosX -= (diffX / distance) * nekoSpeed;
-      nekoPosY -= (diffY / distance) * nekoSpeed;
-
-      nekoPosX = Math.min(Math.max(16, nekoPosX), window.innerWidth - 16);
-      nekoPosY = Math.min(Math.max(16, nekoPosY), window.innerHeight - 16);
-
-      nekoEl.style.left = `${nekoPosX - 16}px`;
-      nekoEl.style.top = `${nekoPosY - 16}px`;
+      animFrameId = requestAnimationFrame(loop);
     };
 
+    // Passive mouse tracking
     const handleMouseMove = (e: MouseEvent) => {
-      mousePosX = e.clientX;
-      mousePosY = e.clientY;
+      target.x = e.clientX;
+      target.y = e.clientY;
+    };
+
+    // Page Visibility API handler
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animFrameId);
+      } else {
+        lastTime = performance.now();
+        animFrameId = requestAnimationFrame(loop);
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    const intervalId = window.setInterval(updateFrame, 100);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Initial render and loop start
+    nekoEl.style.transform = `translate3d(${pos.x - 16}px, ${pos.y - 16}px, 0)`;
+    animFrameId = requestAnimationFrame(loop);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      cancelAnimationFrame(animFrameId);
     };
   }, []);
 
@@ -213,15 +256,18 @@ export const OnekoCursor: React.FC = () => {
         width: '32px',
         height: '32px',
         position: 'fixed',
-        left: '32px',
-        top: '32px',
+        left: 0,
+        top: 0,
         pointerEvents: 'none',
         userSelect: 'none',
         imageRendering: 'pixelated',
         backgroundImage: 'url("./oneko.gif")',
         backgroundRepeat: 'no-repeat',
+        willChange: 'transform',
         zIndex: 9990,
       }}
     />
   );
 };
+
+export default OnekoCursor;

@@ -11,10 +11,14 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '' }) => {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    toggleTheme(e.currentTarget);
+  };
+
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={handleClick}
       className={`${styles.themeToggle} ${className}`}
       aria-label={isDark ? 'Switch to Light theme' : 'Switch to Dark theme'}
       title={isDark ? 'Switch to Light theme (Blueprint mode)' : 'Switch to Dark theme (Engineering Lab mode)'}
