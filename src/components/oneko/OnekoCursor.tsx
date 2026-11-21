@@ -19,9 +19,9 @@ export const OnekoCursor: React.FC = () => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    // Check for fine pointer (desktop mouse/trackpad vs touch device)
-    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    if (!hasFinePointer) return;
+    // Check for touch-only mobile devices (disabled on smartphones/tablets, enabled on desktop with fine/hybrid pointer)
+    const isTouchOnly = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
+    if (isTouchOnly) return;
 
     const nekoEl = nekoRef.current;
     if (!nekoEl) return;
@@ -264,7 +264,7 @@ export const OnekoCursor: React.FC = () => {
         backgroundImage: 'url("./oneko.gif")',
         backgroundRepeat: 'no-repeat',
         willChange: 'transform',
-        zIndex: 9990,
+        zIndex: 990,
       }}
     />
   );

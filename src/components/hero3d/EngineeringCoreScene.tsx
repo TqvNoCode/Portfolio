@@ -154,10 +154,13 @@ export const EngineeringCoreScene: React.FC = () => {
     let isRendering = false;
     let isInViewport = true;
 
-    // Adaptive performance tracking
+    // Adaptive performance tracking with hysteresis and cooldown
     let frameCount = 0;
     let frameTimeSum = 0;
     let currentDPR = targetDPR;
+    let cooldownFrames = 120; // 2s warmup to prevent mount spikes from triggering downscale
+    let degradeStreak = 0;
+    let recoverStreak = 0;
 
     const clock = new THREE.Clock();
 
@@ -194,20 +197,41 @@ export const EngineeringCoreScene: React.FC = () => {
       const delta = Math.min(clock.getDelta(), 0.1);
       totalElapsedTime += delta;
 
-      // Adaptive DPR check every 60 frames
+      // Adaptive DPR check every 60 frames with hysteresis and cooldown
       frameCount++;
       frameTimeSum += delta;
-      if (frameCount >= 60) {
+
+      if (cooldownFrames > 0) {
+        cooldownFrames--;
+      } else if (frameCount >= 60) {
         const avgFrameTime = frameTimeSum / 60;
-        if (avgFrameTime > 0.022 && currentDPR > 1.0) {
-          // Frame rate dropped below ~45 FPS: scale DPR down to 1.0
-          currentDPR = 1.0;
-          renderer.setPixelRatio(1.0);
-        } else if (avgFrameTime < 0.016 && currentDPR < targetDPR) {
-          // Frame rate recovered to 60 FPS: restore target DPR
-          currentDPR = targetDPR;
-          renderer.setPixelRatio(targetDPR);
+
+        if (avgFrameTime > 0.024 && currentDPR > 1.0) {
+          // Sustained frame time > 24ms (< 41.6 FPS)
+          degradeStreak++;
+          recoverStreak = 0;
+          if (degradeStreak >= 2) {
+            currentDPR = 1.0;
+            renderer.setPixelRatio(1.0);
+            cooldownFrames = 180; // 3-second cooldown before further adjustments
+            degradeStreak = 0;
+          }
+        } else if (avgFrameTime <= 0.0175 && currentDPR < targetDPR) {
+          // Frame rate consistently at 57-60 FPS (VSync ~16.67ms)
+          recoverStreak++;
+          degradeStreak = 0;
+          if (recoverStreak >= 2) {
+            currentDPR = targetDPR;
+            renderer.setPixelRatio(targetDPR);
+            cooldownFrames = 180; // 3-second cooldown before further adjustments
+            recoverStreak = 0;
+          }
+        } else {
+          // Stable within normal bounds
+          degradeStreak = 0;
+          recoverStreak = 0;
         }
+
         frameCount = 0;
         frameTimeSum = 0;
       }

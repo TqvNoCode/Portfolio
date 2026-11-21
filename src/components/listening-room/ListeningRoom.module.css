@@ -267,4 +267,7 @@
     flex-direction: column;
     align-items: flex-start;
   }
+  .iframeWrapper {
+    min-height: 220px;
+  }
 }

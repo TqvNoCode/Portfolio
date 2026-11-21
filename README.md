@@ -182,7 +182,7 @@ wrangler pages deploy dist --project-name=tqv-portfolio
 - [x] Viewport-aware Three.js 3D Engineering Core with delta-time rotation and SVG matrix fallback.
 - [x] Advanced Workstation Explorer with 8 Environment Specs, 7 Config Files, and 14 CLI Tools.
 - [x] Semantic Lucide React icons integrated across all capability cards and sections.
-- [x] YouTube Music Listening Room with safe URL parser and graceful empty state.
+- [x] YouTube Music Listening Room with privacy-enhanced embed player and verified focus stream.
 - [x] Command Palette: Fully keyboard-accessible (`⌘K` / `Ctrl+K`) with theme toggle action.
 - [x] Production build passes with zero errors and clean code-split chunks.
 - [x] Visual QA verified across desktop (1440px, 1280px) and mobile viewports.
