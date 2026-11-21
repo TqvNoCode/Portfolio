@@ -38,8 +38,8 @@ export const OnekoCursor: React.FC = () => {
     // Timing
     let lastTime = performance.now();
     let spriteTimer = 0;
-    const SPRITE_CADENCE_MS = 130; // Pixel-art sprite step interval
-    const RUN_SPEED_PPS = 280; // Pixels per second
+    const SPRITE_CADENCE_MS = 145; // Pixel-art sprite step interval
+    const RUN_SPEED_PPS = 210; // Pixels per second (moderated cadence)
 
     let animFrameId: number;
 

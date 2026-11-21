@@ -93,8 +93,8 @@ export const PlaylistTrackRow: React.FC<PlaylistTrackRowProps> = ({
             </span>
           )}
         </div>
-        <span className={styles.channelText} title={track.channelTitle}>
-          {track.channelTitle}
+        <span className={styles.channelText} title={track.channelTitle || 'YouTube Creator'}>
+          {track.channelTitle || 'YouTube Creator'}
         </span>
       </div>
 

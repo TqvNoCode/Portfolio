@@ -3,14 +3,15 @@
  */
 
 export interface PlaylistTrack {
-  playlistItemId: string;
   videoId: string;
   position: number;
   title: string;
-  channelTitle: string;
+  channelTitle: string | null;
   thumbnailUrl: string | null;
   durationSeconds: number | null;
-  embeddable: boolean;
+  metadataStatus: 'loaded' | 'partial' | 'unavailable';
+  embeddable?: boolean;
+  playlistItemId?: string;
   madeForKids?: boolean;
 }
 

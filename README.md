@@ -26,9 +26,9 @@ my_portfolio/
 │   └── sitemap.xml            # Canonical sitemap
 ├── functions/                  # Cloudflare Pages Functions (serverless endpoints)
 │   └── api/
-│       └── listening-room.ts   # Secure YouTube Data API v3 proxy
+│       └── listening-room.ts   # Public YouTube oEmbed fallback proxy (zero API key)
 ├── docs/                       # Architecture & setup guides
-│   └── YOUTUBE_DATA_API_SETUP.md # Google Cloud API Key setup instructions
+│   └── YOUTUBE_PLAYLIST_SETUP.md # YouTube playlist discovery & oEmbed guide
 ├── src/
 │   ├── components/
 │   │   ├── Header/            # Sticky header, section tracking & Cmd+K trigger

@@ -1,41 +1,92 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import type { PlaybackState } from '../../types/listeningRoom';
+import { LISTENING_ROOM_CONFIG } from '../../data/listeningRoom';
 
 declare global {
   interface Window {
     YT: any;
     onYouTubeIframeAPIReady: (() => void) | undefined;
     __ytReadyCallbacks?: Array<() => void>;
+    __ytPlayer?: any;
   }
 }
 
 interface UseYouTubePlayerProps {
-  initialVideoId?: string | null;
+  playlistId?: string;
   onEnded?: () => void;
   onError?: (errorCode: number) => void;
+  onPlaylistDiscovered?: (videoIds: string[]) => void;
 }
 
-export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTubePlayerProps) {
+export function useYouTubePlayer({
+  playlistId = LISTENING_ROOM_CONFIG.defaultPlaylistId,
+  onEnded,
+  onError,
+  onPlaylistDiscovered,
+}: UseYouTubePlayerProps = {}) {
   // Stable unique container ID that persists across re-renders
   const containerId = useRef(`yt-player-${Math.random().toString(36).slice(2, 9)}`).current;
   const playerRef = useRef<any>(null);
 
-  // Store latest callbacks and initialVideoId in refs to prevent player teardown
+  // Store latest callbacks in refs to prevent player teardown
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
 
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
 
-  const initialVideoIdRef = useRef(initialVideoId);
-  const pendingVideoRef = useRef<{ videoId: string; shouldPlay: boolean } | null>(null);
+  const onPlaylistDiscoveredRef = useRef(onPlaylistDiscovered);
+  onPlaylistDiscoveredRef.current = onPlaylistDiscovered;
+
+  const playlistIdRef = useRef(playlistId);
+  playlistIdRef.current = playlistId;
+
+  const pendingIndexRef = useRef<number | null>(null);
 
   const [isReady, setIsReady] = useState(false);
   const [playbackState, setPlaybackState] = useState<PlaybackState>('UNSTARTED');
-  const [currentVideoId, setCurrentVideoId] = useState<string | null>(initialVideoId || null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [playlistVideoIds, setPlaylistVideoIds] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
   const [errorCode, setErrorCode] = useState<number | null>(null);
+  const [discoveryError, setDiscoveryError] = useState<string | null>(null);
+
+  // Controlled playlist discovery strategy
+  const discoverPlaylist = useCallback((player: any, attempt = 0) => {
+    if (!player) return;
+    try {
+      const list = typeof player.getPlaylist === 'function' ? player.getPlaylist() : null;
+      if (Array.isArray(list) && list.length > 0) {
+        setPlaylistVideoIds(list);
+        setDiscoveryError(null);
+
+        const idx = typeof player.getPlaylistIndex === 'function' ? player.getPlaylistIndex() : 0;
+        const validIdx = idx >= 0 && idx < list.length ? idx : 0;
+        setCurrentIndex(validIdx);
+        setCurrentVideoId(list[validIdx] || null);
+
+        if (onPlaylistDiscoveredRef.current) {
+          onPlaylistDiscoveredRef.current(list);
+        }
+        return;
+      }
+    } catch (e) {
+      console.warn('Error reading player.getPlaylist():', e);
+    }
+
+    // Retry strategy with reasonable delay (up to 6 attempts = 1.8s)
+    if (attempt < 6) {
+      setTimeout(() => {
+        if (playerRef.current) {
+          discoverPlaylist(playerRef.current, attempt + 1);
+        }
+      }, 300);
+    } else {
+      setDiscoveryError('Playlist discovery timed out.');
+    }
+  }, []);
 
   // Load YouTube IFrame API script and initialize player exactly once
   useEffect(() => {
@@ -50,20 +101,17 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
 
       const mountEl = document.getElementById(containerId);
       if (!mountEl) {
-        // Element not mounted yet, retry on next frame
         setTimeout(initPlayer, 50);
         return;
       }
 
       try {
-        const vidToLoad = pendingVideoRef.current?.videoId || initialVideoIdRef.current || undefined;
-
         playerRef.current = new window.YT.Player(containerId, {
           height: '100%',
           width: '100%',
-          videoId: vidToLoad,
-          host: 'https://www.youtube-nocookie.com',
           playerVars: {
+            listType: 'playlist',
+            list: playlistIdRef.current,
             autoplay: 0,
             controls: 1,
             modestbranding: 1,
@@ -78,23 +126,23 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
               if (!isSubscribed) return;
               setIsReady(true);
               setErrorCode(null);
+              window.__ytPlayer = event.target;
 
+              // Discover playlist video IDs
+              discoverPlaylist(event.target, 0);
+
+              // Update duration if available
               const dur = event.target.getDuration();
               if (dur && !isNaN(dur) && dur > 0) {
                 setDuration(dur);
               }
 
-              // If a pending video was requested prior to onReady, execute it now
-              if (pendingVideoRef.current) {
-                const { videoId, shouldPlay } = pendingVideoRef.current;
-                pendingVideoRef.current = null;
-                if (shouldPlay) {
-                  event.target.loadVideoById(videoId);
-                } else {
-                  event.target.cueVideoById(videoId);
-                }
-              } else if (vidToLoad) {
-                // Initial video cued
+              // Execute pending index if requested prior to onReady
+              if (pendingIndexRef.current !== null) {
+                const targetIdx = pendingIndexRef.current;
+                pendingIndexRef.current = null;
+                event.target.playVideoAt(targetIdx);
+              } else {
                 setPlaybackState('CUED');
               }
             },
@@ -103,7 +151,6 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
               const stateCode = event.data;
               let nextState: PlaybackState = 'UNSTARTED';
 
-              // Map official YouTube player states strictly
               switch (stateCode) {
                 case window.YT.PlayerState.UNSTARTED: // -1
                   nextState = 'UNSTARTED';
@@ -125,6 +172,8 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
                 case window.YT.PlayerState.CUED: // 5
                   nextState = 'CUED';
                   setErrorCode(null);
+                  // Check if playlist IDs are now available
+                  discoverPlaylist(event.target, 0);
                   break;
                 default:
                   nextState = 'UNSTARTED';
@@ -132,10 +181,23 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
 
               setPlaybackState(nextState);
 
-              const dur = event.target.getDuration();
-              if (dur && !isNaN(dur) && dur > 0) {
-                setDuration(dur);
-              }
+              // Update duration, index, and video ID from player
+              try {
+                const dur = event.target.getDuration();
+                if (dur && !isNaN(dur) && dur > 0) {
+                  setDuration(dur);
+                }
+
+                const idx = typeof event.target.getPlaylistIndex === 'function' ? event.target.getPlaylistIndex() : -1;
+                if (idx >= 0) {
+                  setCurrentIndex(idx);
+                }
+
+                const data = typeof event.target.getVideoData === 'function' ? event.target.getVideoData() : null;
+                if (data && data.video_id) {
+                  setCurrentVideoId(data.video_id);
+                }
+              } catch {}
             },
             onError: (event: any) => {
               if (!isSubscribed) return;
@@ -172,7 +234,6 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
         }
       };
 
-      // Inject script if not already present
       if (!document.getElementById('youtube-iframe-api')) {
         const tag = document.createElement('script');
         tag.id = 'youtube-iframe-api';
@@ -193,7 +254,7 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
         playerRef.current = null;
       }
     };
-  }, [containerId]); // Strict single initialization on mount
+  }, [containerId, discoverPlaylist]);
 
   // Polling current playback time ONLY while genuinely in PLAYING state
   useEffect(() => {
@@ -258,31 +319,41 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
     }
   }, [playbackState, play, pause]);
 
-  const setError = useCallback((code: number) => {
-    setPlaybackState('ERROR');
-    setErrorCode(code);
-    if (onErrorRef.current) onErrorRef.current(code);
-  }, []);
-
-  const loadVideo = useCallback((videoId: string, shouldPlay = true) => {
-    setCurrentVideoId(videoId);
-    setCurrentTime(0);
-
-    if (playerRef.current && isReady) {
+  const playVideoAt = useCallback((index: number) => {
+    if (playerRef.current && isReady && typeof playerRef.current.playVideoAt === 'function') {
       try {
-        if (shouldPlay && typeof playerRef.current.loadVideoById === 'function') {
-          playerRef.current.loadVideoById(videoId);
-        } else if (typeof playerRef.current.cueVideoById === 'function') {
-          playerRef.current.cueVideoById(videoId);
-        }
+        playerRef.current.playVideoAt(index);
+        setCurrentIndex(index);
+        setCurrentTime(0);
       } catch (e) {
-        console.error('Error changing video in player:', e);
+        console.error('Error in playVideoAt:', e);
       }
     } else {
-      // Player not ready yet: queue for execution in onReady
-      pendingVideoRef.current = { videoId, shouldPlay };
+      pendingIndexRef.current = index;
     }
   }, [isReady]);
+
+  const nextVideo = useCallback(() => {
+    if (playerRef.current && typeof playerRef.current.nextVideo === 'function') {
+      try {
+        playerRef.current.nextVideo();
+        setCurrentTime(0);
+      } catch (e) {
+        console.error('Error in nextVideo:', e);
+      }
+    }
+  }, []);
+
+  const previousVideo = useCallback(() => {
+    if (playerRef.current && typeof playerRef.current.previousVideo === 'function') {
+      try {
+        playerRef.current.previousVideo();
+        setCurrentTime(0);
+      } catch (e) {
+        console.error('Error in previousVideo:', e);
+      }
+    }
+  }, []);
 
   const seekTo = useCallback((seconds: number) => {
     if (playerRef.current && typeof playerRef.current.seekTo === 'function') {
@@ -291,19 +362,68 @@ export function useYouTubePlayer({ initialVideoId, onEnded, onError }: UseYouTub
     }
   }, []);
 
+  const setShuffle = useCallback((shuffle: boolean) => {
+    if (playerRef.current && typeof playerRef.current.setShuffle === 'function') {
+      try {
+        playerRef.current.setShuffle(shuffle);
+      } catch (e) {
+        console.error('Error setting shuffle:', e);
+      }
+    }
+  }, []);
+
+  const setLoop = useCallback((loop: boolean) => {
+    if (playerRef.current && typeof playerRef.current.setLoop === 'function') {
+      try {
+        playerRef.current.setLoop(loop);
+      } catch (e) {
+        console.error('Error setting loop:', e);
+      }
+    }
+  }, []);
+
+  const setErrorState = useCallback((code: number) => {
+    setPlaybackState('ERROR');
+    setErrorCode(code);
+    if (onErrorRef.current) onErrorRef.current(code);
+  }, []);
+
+  const refreshPlaylist = useCallback(() => {
+    if (!playerRef.current) return;
+    try {
+      if (typeof playerRef.current.cuePlaylist === 'function') {
+        playerRef.current.cuePlaylist({
+          listType: 'playlist',
+          list: playlistIdRef.current,
+        });
+      }
+      discoverPlaylist(playerRef.current, 0);
+    } catch (e) {
+      console.warn('Error refreshing playlist in YouTube player:', e);
+    }
+  }, [discoverPlaylist]);
+
   return {
     containerId,
     isReady,
     playbackState,
+    playlistVideoIds,
+    currentIndex,
     currentVideoId,
     currentTime,
     duration,
     errorCode,
+    discoveryError,
     play,
     pause,
     togglePlay,
-    loadVideo,
+    playVideoAt,
+    nextVideo,
+    previousVideo,
     seekTo,
-    setError,
+    setShuffle,
+    setLoop,
+    setError: setErrorState,
+    refreshPlaylist,
   };
 }

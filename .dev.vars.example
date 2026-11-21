@@ -1,6 +1,5 @@
 # Cloudflare Pages Functions local development variables
-# Copy this file to .dev.vars and add your real Google Cloud API Key
-# Never commit .dev.vars to version control
+# The Listening Room uses YouTube IFrame Player API + public oEmbed (No API key required)
+# To change the default playlist, update YOUTUBE_PLAYLIST_ID:
 
 YOUTUBE_PLAYLIST_ID=PLV8hEip3Kp-o
-YOUTUBE_API_KEY=YOUR_GOOGLE_CLOUD_API_KEY

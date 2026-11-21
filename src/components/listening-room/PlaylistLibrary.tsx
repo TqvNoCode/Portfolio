@@ -1,5 +1,5 @@
 import React from 'react';
-import { RotateCw, ExternalLink, KeyRound, AlertTriangle, Music } from 'lucide-react';
+import { RotateCw, ExternalLink, AlertTriangle, Music } from 'lucide-react';
 import type { PlaylistTrack, PlaybackState } from '../../types/listeningRoom';
 import { PlaylistSearch } from './PlaylistSearch';
 import { PlaylistTrackRow } from './PlaylistTrackRow';
@@ -14,15 +14,15 @@ interface PlaylistLibraryProps {
   isLoading: boolean;
   isRefreshing: boolean;
   error: string | null;
-  errorCode: string | null;
+  errorCode?: string | null;
   lastSyncedAt: Date | null;
-  nextPageToken: string | null;
+  nextPageToken?: string | null;
   searchQuery: string;
   playlistUrl: string;
   onSearchChange: (query: string) => void;
   onSelectTrack: (track: PlaylistTrack) => void;
   onRefresh: () => void;
-  onLoadMore: () => void;
+  onLoadMore?: () => void;
 }
 
 export const PlaylistLibrary: React.FC<PlaylistLibraryProps> = ({
@@ -34,7 +34,6 @@ export const PlaylistLibrary: React.FC<PlaylistLibraryProps> = ({
   isLoading,
   isRefreshing,
   error,
-  errorCode,
   lastSyncedAt,
   nextPageToken,
   searchQuery,
@@ -105,17 +104,18 @@ export const PlaylistLibrary: React.FC<PlaylistLibraryProps> = ({
               </div>
             ))}
           </div>
-        ) : errorCode === 'API_KEY_MISSING' ? (
-          // Waiting for API Key State
+        ) : error && tracks.length === 0 ? (
+          // General Error State
           <div className={styles.emptyStateNotice}>
             <div className={styles.emptyNoticeIcon}>
-              <KeyRound size={28} />
+              <AlertTriangle size={28} />
             </div>
-            <h4 className={styles.emptyNoticeTitle}>YouTube Data API Key Required</h4>
-            <p className={styles.emptyNoticeDesc}>
-              The secure Cloudflare Pages Function requires a Google Cloud API Key in <code>.dev.vars</code> (local) or Cloudflare Secrets (production) to query live tracks.
-            </p>
+            <h4 className={styles.emptyNoticeTitle}>Unable to Load Playlist</h4>
+            <p className={styles.emptyNoticeDesc}>{error}</p>
             <div className={styles.emptyNoticeActions}>
+              <button type="button" onClick={onRefresh} className={styles.retryButton}>
+                Try Again
+              </button>
               <a
                 href={playlistUrl}
                 target="_blank"
@@ -126,22 +126,6 @@ export const PlaylistLibrary: React.FC<PlaylistLibraryProps> = ({
                 <ExternalLink size={12} />
               </a>
             </div>
-            <div className={styles.setupHint}>
-              <span>Guide:</span>
-              <code>docs/YOUTUBE_DATA_API_SETUP.md</code>
-            </div>
-          </div>
-        ) : error && tracks.length === 0 ? (
-          // General Error State
-          <div className={styles.emptyStateNotice}>
-            <div className={styles.emptyNoticeIcon}>
-              <AlertTriangle size={28} />
-            </div>
-            <h4 className={styles.emptyNoticeTitle}>Unable to Load Playlist</h4>
-            <p className={styles.emptyNoticeDesc}>{error}</p>
-            <button type="button" onClick={onRefresh} className={styles.retryButton}>
-              Try Again
-            </button>
           </div>
         ) : filteredTracks.length === 0 ? (
           // Search No Results

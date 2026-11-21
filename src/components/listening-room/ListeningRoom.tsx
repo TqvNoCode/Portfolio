@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { ExternalLink, Radio } from 'lucide-react';
 import { LISTENING_ROOM_CONFIG } from '../../data/listeningRoom';
 import { usePlaylist } from './usePlaylist';
@@ -9,26 +9,31 @@ import type { PlaylistTrack } from '../../types/listeningRoom';
 import styles from './ListeningRoom.module.css';
 
 export const ListeningRoom: React.FC = () => {
-  const playlist = usePlaylist();
-
-  const defaultVideoId = '0LuignGmX_0';
+  const playlistId = LISTENING_ROOM_CONFIG.defaultPlaylistId;
 
   const player = useYouTubePlayer({
-    initialVideoId: defaultVideoId,
+    playlistId,
     onEnded: () => {
-      const next = playlist.nextTrack();
-      if (next) {
-        player.loadVideo(next.videoId, true);
+      if (playlist.repeat === 'one') {
+        player.playVideoAt(player.currentIndex);
+      } else {
+        player.nextVideo();
       }
     },
   });
 
-  // Cue initial video when playlist finishes loading without autoplaying
-  useEffect(() => {
-    if (playlist.selectedTrack && player.isReady && !player.currentVideoId) {
-      player.loadVideo(playlist.selectedTrack.videoId, false);
-    }
-  }, [playlist.selectedTrack, player.isReady, player.currentVideoId, player.loadVideo]);
+  const playlist = usePlaylist({
+    videoIds: player.playlistVideoIds,
+    currentVideoId: player.currentVideoId,
+    currentIndex: player.currentIndex,
+    playerDuration: player.duration,
+    onSelectIndex: (index: number) => {
+      player.playVideoAt(index);
+    },
+    onRefreshPlayer: () => {
+      player.refreshPlaylist();
+    },
+  });
 
   // When user explicitly clicks a track row in the library
   const handleSelectTrack = useCallback(
@@ -37,7 +42,7 @@ export const ListeningRoom: React.FC = () => {
       if (track.embeddable === false) {
         player.setError(150);
       } else {
-        player.loadVideo(track.videoId, true);
+        player.playVideoAt(track.position - 1);
       }
     },
     [playlist, player]
@@ -45,18 +50,26 @@ export const ListeningRoom: React.FC = () => {
 
   // Next Track Action
   const handleNext = useCallback(() => {
-    const next = playlist.nextTrack();
-    if (next) {
-      player.loadVideo(next.videoId, true);
-    }
-  }, [playlist, player]);
+    player.nextVideo();
+  }, [player]);
 
   // Previous Track Action
   const handlePrev = useCallback(() => {
-    const prev = playlist.prevTrack();
-    if (prev) {
-      player.loadVideo(prev.videoId, true);
-    }
+    player.previousVideo();
+  }, [player]);
+
+  // Shuffle toggle
+  const handleToggleShuffle = useCallback(() => {
+    const nextShuffle = !playlist.shuffle;
+    playlist.toggleShuffle();
+    player.setShuffle(nextShuffle);
+  }, [playlist, player]);
+
+  // Repeat toggle
+  const handleToggleRepeat = useCallback(() => {
+    playlist.toggleRepeat();
+    const nextRepeat = playlist.repeat === 'off' ? 'all' : playlist.repeat === 'all' ? 'one' : 'off';
+    player.setLoop(nextRepeat === 'all');
   }, [playlist, player]);
 
   return (
@@ -102,15 +115,12 @@ export const ListeningRoom: React.FC = () => {
             isLoading={playlist.isLoading}
             isRefreshing={playlist.isRefreshing}
             error={playlist.error}
-            errorCode={playlist.errorCode}
             lastSyncedAt={playlist.lastSyncedAt}
-            nextPageToken={playlist.nextPageToken}
             searchQuery={playlist.searchQuery}
             playlistUrl={playlist.playlistUrl}
             onSearchChange={playlist.setSearchQuery}
             onSelectTrack={handleSelectTrack}
             onRefresh={playlist.refreshPlaylist}
-            onLoadMore={playlist.loadMore}
           />
 
           {/* Right Panel: Now Playing (48%) */}
@@ -120,15 +130,15 @@ export const ListeningRoom: React.FC = () => {
             selectedTrack={playlist.selectedTrack}
             playbackState={player.playbackState}
             currentTime={player.currentTime}
-            duration={player.duration}
+            duration={player.duration || playlist.selectedTrack?.durationSeconds || 0}
             shuffle={playlist.shuffle}
             repeat={playlist.repeat}
             playlistUrl={playlist.playlistUrl}
             onTogglePlay={player.togglePlay}
             onPrev={handlePrev}
             onNext={handleNext}
-            onToggleShuffle={playlist.toggleShuffle}
-            onToggleRepeat={playlist.toggleRepeat}
+            onToggleShuffle={handleToggleShuffle}
+            onToggleRepeat={handleToggleRepeat}
             onSeek={player.seekTo}
           />
         </div>
